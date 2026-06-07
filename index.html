@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Всеволод Каримов</title>
+<meta name="description" content="Всеволод Каримов — агентные системы, наукометрия, институциональный дизайн.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f1;
+    --ink: #201e1a;
+    --muted: #6f695e;
+    --faint: #aaa093;
+    --accent: #355b6e;
+    --line: #e7e0d3;
+    --line-strong: #d6cdba;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15130f;
+      --ink: #ece7dd;
+      --muted: #a39a8b;
+      --faint: #6b6356;
+      --accent: #92b9ca;
+      --line: #2a261e;
+      --line-strong: #3a3527;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.7;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  a { color: inherit; }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 96px 48px 96px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 88px;
+    align-items: start;
+  }
+
+  /* ---- left rail ---- */
+  .rail { position: sticky; top: 96px; }
+  h1 {
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 600; font-size: 2.5rem;
+    line-height: 1.1; letter-spacing: -0.015em;
+    margin-bottom: 20px;
+  }
+  .tagline {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.18rem; font-style: italic; font-weight: 400;
+    color: var(--muted); line-height: 1.5; margin-bottom: 32px;
+  }
+  .lang { display: flex; align-items: center; gap: 4px; font-size: 12.5px; letter-spacing: 0.05em; margin-bottom: 36px; }
+  .lang button { background: none; border: none; cursor: pointer; color: var(--faint); padding: 4px 8px; font: inherit; font-size: 12.5px; border-radius: 5px; transition: color .18s, background .18s; }
+  .lang button.active { color: var(--ink); background: var(--line); }
+  .lang button:hover { color: var(--accent); }
+  .lang i { color: var(--line-strong); font-style: normal; }
+
+  .rail .contact { padding-top: 28px; border-top: 1px solid var(--line); }
+  .rail .contact-label { font-size: .7rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .contact-list { display: flex; flex-direction: column; gap: 9px; font-size: .98rem; }
+  .contact-list a, .contact-list .ph {
+    display: inline-block; width: fit-content; color: var(--ink); text-decoration: none;
+    border-bottom: 1px solid var(--line-strong); padding-bottom: 1px;
+    transition: color .18s, border-color .18s;
+  }
+  .contact-list a:hover { color: var(--accent); border-color: var(--accent); }
+  .contact-list .ph { color: var(--faint); border-style: dashed; }
+
+  /* ---- right content ---- */
+  .content { max-width: 600px; }
+  section { margin-bottom: 60px; }
+  section:last-child { margin-bottom: 0; }
+  h2 { font-size: .72rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+  .section-title { font-family: 'Lora', Georgia, serif; font-size: 1.7rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 16px; }
+  .lead { font-size: 1.06rem; line-height: 1.6; color: var(--ink); margin-bottom: 34px; max-width: 54ch; }
+  .quip { margin-top: 18px; color: var(--muted); line-height: 1.5; }
+  p { color: var(--ink); }
+  p + p { margin-top: 14px; }
+
+  .projects { list-style: none; }
+  .projects li { padding: 22px 0; border-top: 1px solid var(--line); }
+  .projects li:last-child { border-bottom: 1px solid var(--line); }
+  .projects .phead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
+  .projects .name { font-family: 'Lora', Georgia, serif; font-size: 1.18rem; font-weight: 500; line-height: 1.2; }
+  .projects .tag { font-size: .64rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--line-strong); border-radius: 100px; padding: 2px 9px; white-space: nowrap; }
+  .projects .desc { color: var(--muted); font-size: 1rem; line-height: 1.55; }
+
+  footer { margin-top: 40px; font-size: .8rem; color: var(--faint); }
+
+  /* ---- i18n: hide the inactive language, never force display ---- */
+  html[lang="ru"] .i18n--en,
+  html[lang="en"] .i18n--ru { display: none !important; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  @media (max-width: 860px) {
+    .page { grid-template-columns: 1fr; gap: 0; padding: 72px 28px 80px; max-width: 640px; }
+    .rail { position: static; margin-bottom: 56px; }
+    .rail .contact { margin-top: 32px; }
+    h1 { font-size: 2.2rem; }
+  }
+  @media (max-width: 460px) {
+    body { font-size: 16px; }
+    .page { padding: 60px 22px 64px; }
+    h1 { font-size: 2rem; }
+    .tagline { font-size: 1.1rem; }
+    section { margin-bottom: 48px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <aside class="rail">
+      <h1>
+        <span class="i18n--ru">Всеволод Каримов</span>
+        <span class="i18n--en">Vsevolod Karimov</span>
+      </h1>
+      <p class="tagline">
+        <span class="i18n--ru">Создаю агентные системы и инструменты для работы со знанием.</span>
+        <span class="i18n--en">I build agentic systems and tools for working with knowledge.</span>
+      </p>
+
+      <nav class="lang" aria-label="Язык / Language">
+        <button id="btn-ru" class="active" onclick="setLang('ru')">RU</button>
+        <i aria-hidden="true">·</i>
+        <button id="btn-en" onclick="setLang('en')">EN</button>
+      </nav>
+
+      <div class="contact">
+        <div class="contact-label"><span class="i18n--ru">Связаться</span><span class="i18n--en">Contact</span></div>
+        <div class="contact-list">
+          <a href="mailto:seva@hamyrappy.ru">seva@hamyrappy.ru</a>
+          <a href="https://t.me/hamyrappy" target="_blank" rel="noopener">Telegram</a>
+          <a href="https://github.com/Hamyrappy" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <h2 class="sr-only">Всеволод Каримов — личная страница</h2>
+
+      <section>
+        <h2><span class="i18n--ru">О себе</span><span class="i18n--en">About</span></h2>
+        <p class="i18n--ru">Учусь в магистратуре «Математика машинного обучения» Сколтеха и ВШЭ, до этого — бакалавриат ВШЭ по экономике и статистике, майнор в политологии. Занимаюсь NLP, наукометрией, агентными системами и предпринимательством.</p>
+        <p class="i18n--en">Master's student in the Mathematics of Machine Learning programme at Skoltech and HSE, after a BSc in Economics and Statistics at HSE with a minor in political science. I work on NLP, scientometrics, agentic systems, and entrepreneurship.</p>
+        <p class="quip i18n--ru">Характер самоуверенный.<br>Не женат.</p>
+      </section>
+
+      <section>
+        <div class="section-title"><span class="i18n--ru">Проекты</span><span class="i18n--en">Projects</span></div>
+        <p class="lead"><span class="i18n--ru">Технологии развиваются быстрее, чем мы успеваем понять, как с ними жить и как договариваться друг с другом. Мне важно, чтобы моя работа хоть немного сокращала этот разрыв.</span><span class="i18n--en">Technology advances faster than we learn to live with it, or to come to terms with one another. What matters to me is that my work narrows that gap, even a little.</span></p>
+        <ul class="projects">
+          <li>
+            <div class="phead">
+              <span class="name">AI Clerk</span>
+              <span class="tag"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
+            </div>
+            <div class="desc"><span class="i18n--ru">ИИ-менеджер для продавцов на маркетплейсах. Берёт на себя операционку: карточки, рекламу, поставки. Действует сам, селлер лишь подтверждает решения. Мой основной бизнес-проект.</span><span class="i18n--en">An AI manager for marketplace sellers. It takes over operations: listings, ads, shipments. It acts on its own and the seller only approves the decisions. My main business project.</span></div>
+          </li>
+          <li>
+            <div class="phead">
+              <span class="name"><span class="i18n--ru">Звонок другу</span><span class="i18n--en">Call a Friend</span></span>
+              <span class="tag"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
+            </div>
+            <div class="desc"><span class="i18n--ru">Доступ к ИИ-ассистенту по обычному телефонному звонку. Для людей без смартфона и интернета.</span><span class="i18n--en">Access to an AI assistant over an ordinary phone call. For people without a smartphone or internet.</span></div>
+          </li>
+          <li>
+            <div class="phead">
+              <span class="name">Drift Inspector</span>
+              <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
+            </div>
+            <div class="desc"><span class="i18n--ru">Инструмент, который измеряет, как со временем меняются темы в науке. Из статей выделяются отдельные утверждения о вкладе, и по ним виден дрейф целой области. Основа для Графа Науки.</span><span class="i18n--en">A tool that measures how research topics shift over time. It extracts individual contribution claims from papers, and they reveal the drift of a whole field. A foundation for Science Graph.</span></div>
+          </li>
+          <li>
+            <div class="phead">
+              <span class="name"><span class="i18n--ru">Граф Науки</span><span class="i18n--en">Science Graph</span></span>
+              <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
+            </div>
+            <div class="desc"><span class="i18n--ru">Модифицированный (гипер)граф знаний поверх массивов научных статей, который помогает ориентироваться в исследованиях, картировать научный ландшафт и автоматически проверять утверждения. В разработке.</span><span class="i18n--en">A modified knowledge (hyper)graph built over large corpora of research papers that helps navigate the literature, map the scientific landscape, and verify claims automatically. In progress.</span></div>
+          </li>
+          <li>
+            <div class="phead">
+              <span class="name"><span class="i18n--ru">Регент-системы</span><span class="i18n--en">Regent Systems</span></span>
+              <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
+            </div>
+            <div class="desc"><span class="i18n--ru">LLM-агенты в роли правительств внутри агентных моделей экономики: они не просто настраивают политику, а порождают новые меры в виде исполняемого кода. Подход к моделированию эволюции управления сложными системами.</span><span class="i18n--en">LLM agents acting as governments inside agent-based economic models: they don't just tune policy, they generate new interventions as executable code. An approach to modeling the evolution of governance in complex systems.</span></div>
+          </li>
+        </ul>
+      </section>
+
+      <footer>
+        <span class="i18n--ru">© 2026 Всеволод Каримов</span>
+        <span class="i18n--en">© 2026 Vsevolod Karimov</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    function setLang(l) {
+      document.documentElement.lang = l;
+      document.getElementById('btn-ru').classList.toggle('active', l === 'ru');
+      document.getElementById('btn-en').classList.toggle('active', l === 'en');
+      document.title = l === 'en' ? 'Vsevolod Karimov' : 'Всеволод Каримов';
+    }
+  </script>
+</body>
+</html>
