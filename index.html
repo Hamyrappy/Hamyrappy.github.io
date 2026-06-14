@@ -7,153 +7,223 @@
 <meta name="description" content="Всеволод Каримов — агентные системы, наукометрия, институциональный дизайн.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400;1,6..72,500&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #faf7f1;
-    --ink: #201e1a;
-    --muted: #6f695e;
-    --faint: #aaa093;
-    --accent: #355b6e;
-    --line: #e7e0d3;
-    --line-strong: #d6cdba;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #15130f;
-      --ink: #ece7dd;
-      --muted: #a39a8b;
-      --faint: #6b6356;
-      --accent: #92b9ca;
-      --line: #2a261e;
-      --line-strong: #3a3527;
-    }
+    /* atmosphere: colour world (default = Midnight) */
+    /* colour world — locked to Aqua · Seafoam */
+    --bg:        #06120e;
+    --bg-2:      #0d1d18;
+    --ink:       #dbefe9;
+    --muted:     #7ea89e;
+    --faint:     #4b6962;
+    --accent:    #45d6b6;
+    --accent-dim:#2a9078;
+    --line:      #172925;
+    --line-2:    #233732;
+    --accent-glow: .72;
+
+    /* voice — locked to Mono */
+    --font-body:    'JetBrains Mono', ui-monospace, monospace;
+    --font-display: 'JetBrains Mono', ui-monospace, monospace;
+    --voice-fs-mul: .9;
+    --display-track: -0.03em;
+
+    /* tempo — locked to Tight */
+    --lh:     1.46;
+    --gap:    34px;
+    --li-pad: 13px;
+    --pad-top: clamp(44px, 7vh, 72px);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; font-size: calc(16px * var(--voice-fs-mul)); }
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Inter', system-ui, sans-serif;
-    line-height: 1.7;
-    font-size: 17px;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    font-family: var(--font-body);
+    font-size: 1.125rem; font-weight: 300; line-height: var(--lh);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    transition: background .5s ease, color .5s ease;
   }
   ::selection { background: var(--accent); color: var(--bg); }
-  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
-  a { color: inherit; }
+  a { color: inherit; text-decoration: none; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
+  .label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--accent);
+  }
+
+  /* ===== shell: editorial two-column ===== */
   .page {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 96px 48px 96px;
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 88px;
+    max-width: 1080px; margin: 0 auto;
+    padding: var(--pad-top) clamp(24px, 5vw, 60px) 72px;
+    display: grid; grid-template-columns: 320px 1fr; gap: clamp(48px, 6vw, 92px);
     align-items: start;
   }
 
   /* ---- left rail ---- */
-  .rail { position: sticky; top: 96px; }
+  .rail { position: sticky; top: clamp(64px, 12vh, 112px); }
+  .monogram {
+    display: inline-flex; align-items: center; gap: 9px; margin-bottom: 30px;
+    font-family:'JetBrains Mono',monospace; font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  .monogram .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px color-mix(in oklch, var(--accent) calc(var(--accent-glow) * 100%), transparent); }
   h1 {
-    font-family: 'Lora', Georgia, serif;
-    font-weight: 600; font-size: 2.5rem;
-    line-height: 1.1; letter-spacing: -0.015em;
-    margin-bottom: 20px;
+    font-family: var(--font-display);
+    font-weight: 400; font-size: clamp(2.4rem, 4.6vw, 3.3rem);
+    line-height: 1.04; letter-spacing: var(--display-track); margin-bottom: 18px;
   }
+  h1 .it { display: block; font-style: normal; font-weight: 300; color: var(--accent); }
   .tagline {
-    font-family: 'Lora', Georgia, serif;
-    font-size: 1.18rem; font-style: italic; font-weight: 400;
-    color: var(--muted); line-height: 1.5; margin-bottom: 32px;
+    font-style: normal; font-weight: 300; font-size: 1.18rem; line-height: calc(var(--lh) - 0.12);
+    color: var(--muted); max-width: 30ch; margin-bottom: 30px;
   }
-  .lang { display: flex; align-items: center; gap: 4px; font-size: 12.5px; letter-spacing: 0.05em; margin-bottom: 36px; }
-  .lang button { background: none; border: none; cursor: pointer; color: var(--faint); padding: 4px 8px; font: inherit; font-size: 12.5px; border-radius: 5px; transition: color .18s, background .18s; }
-  .lang button.active { color: var(--ink); background: var(--line); }
-  .lang button:hover { color: var(--accent); }
-  .lang i { color: var(--line-strong); font-style: normal; }
 
-  .rail .contact { padding-top: 28px; border-top: 1px solid var(--line); }
-  .rail .contact-label { font-size: .7rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
-  .contact-list { display: flex; flex-direction: column; gap: 9px; font-size: .98rem; }
-  .contact-list a, .contact-list .ph {
-    display: inline-block; width: fit-content; color: var(--ink); text-decoration: none;
-    border-bottom: 1px solid var(--line-strong); padding-bottom: 1px;
+  .lang { display: inline-flex; align-items: center; gap: 2px; margin-bottom: 40px; }
+  .lang button {
+    background: none; border: none; cursor: pointer; padding: 5px 9px;
+    font-family:'JetBrains Mono',monospace; font-size: 11.5px; letter-spacing: .08em;
+    color: var(--faint); border-radius: 6px; transition: color .18s, background .18s;
+  }
+  .lang button.active { color: var(--bg); background: var(--accent); }
+  .lang button:not(.active):hover { color: var(--ink); }
+  .lang .sep { color: var(--line-2); }
+
+  .contact { padding-top: 16px; border-top: 1px solid var(--line); }
+  .contact .label { display: block; margin-bottom: 16px; }
+  .contact-list { display: flex; flex-direction: column; gap: 11px; }
+  .contact-list a {
+    width: fit-content; font-size: 1rem; color: var(--ink);
+    display: inline-flex; align-items: baseline; gap: 9px;
+    border-bottom: 1px solid var(--line-2); padding-bottom: 2px;
     transition: color .18s, border-color .18s;
   }
+  .contact-list a .ar { font-family:'JetBrains Mono',monospace; font-size: .8em; color: var(--accent-dim); transition: transform .18s, color .18s; }
   .contact-list a:hover { color: var(--accent); border-color: var(--accent); }
-  .contact-list .ph { color: var(--faint); border-style: dashed; }
+  .contact-list a:hover .ar { color: var(--accent); transform: translate(2px,-2px); }
 
   /* ---- right content ---- */
-  .content { max-width: 600px; }
-  section { margin-bottom: 60px; }
-  section:last-child { margin-bottom: 0; }
-  h2 { font-size: .72rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
-  .section-title { font-family: 'Lora', Georgia, serif; font-size: 1.7rem; font-weight: 600; line-height: 1.1; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 16px; }
-  .lead { font-size: 1.06rem; line-height: 1.6; color: var(--ink); margin-bottom: 34px; max-width: 54ch; }
-  .quip { margin-top: 18px; color: var(--muted); line-height: 1.5; }
-  p { color: var(--ink); }
-  p + p { margin-top: 14px; }
+  .content { max-width: 600px; padding-top: 6px; }
+  section { margin-bottom: var(--gap); }
+  section:last-of-type { margin-bottom: 0; }
+  .content .label { display: block; margin-bottom: 20px; }
 
-  .projects { list-style: none; }
-  .projects li { padding: 22px 0; border-top: 1px solid var(--line); }
-  .projects li:last-child { border-bottom: 1px solid var(--line); }
-  .projects .phead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
-  .projects .name { font-family: 'Lora', Georgia, serif; font-size: 1.18rem; font-weight: 500; line-height: 1.2; }
-  .projects .tag { font-size: .64rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--line-strong); border-radius: 100px; padding: 2px 9px; white-space: nowrap; }
-  .projects .desc { color: var(--muted); font-size: 1rem; line-height: 1.55; }
-  .projects a.proj { color: inherit; text-decoration: none; transition: color .18s; }
-  .projects a.proj:hover { color: var(--accent); }
-  .projects a.proj .arr { color: var(--accent); font-size: .82em; opacity: .65; margin-left: 3px; display: inline-block; transition: opacity .18s, transform .18s; }
-  .projects a.proj:hover .arr { opacity: 1; transform: translate(2px, -2px); }
+  /* ---- spec sheet (left rail) ---- */
+  .spec { display: flex; flex-direction: column; gap: 15px; padding-top: 26px; margin-bottom: 30px; border-top: 1px solid var(--line); }
+  .row { display: flex; align-items: baseline; gap: 10px; }
+  .row .k {
+    font-family:'JetBrains Mono',monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: .15em; text-transform: uppercase; color: var(--faint); white-space: nowrap;
+  }
+  .row .ldr { flex: 1 1 14px; min-width: 14px; border-bottom: 1px dotted var(--line-2); transform: translateY(-4px); }
+  .row .v { font-size: .98rem; color: var(--ink); text-align: right; line-height: 1.3; }
+  .row .v .sub { display: block; color: var(--muted); font-size: .9rem; margin-top: 1px; }
+  .quip { margin-top: 24px; font-style: italic; color: var(--faint); font-size: 1rem; line-height: 1.4; }
 
-  footer { margin-top: 40px; font-size: .8rem; color: var(--faint); }
+  .projects { list-style: none; border-top: 1px solid var(--line); }
+  .projects li { padding: var(--li-pad) 4px; border-bottom: 1px solid var(--line); position: relative; transition: background .3s, padding .35s ease; }
+  .projects li::before {
+    content:''; position:absolute; left:-4px; top:0; bottom:0; width: 2px; background: var(--accent);
+    transform: scaleY(0); transform-origin: top; transition: transform .35s cubic-bezier(.2,.7,.2,1);
+  }
+  .projects li:hover { background: linear-gradient(90deg, var(--bg-2), transparent 75%); }
+  .projects li:hover::before { transform: scaleY(1); }
+  .phead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 7px; flex-wrap: wrap; }
+  .phead .name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; line-height: 1.15; }
+  .phead .name .it { font-style: italic; }
+  .phead .name a { color: inherit; transition: color .18s; }
+  .phead .name a:hover { color: var(--accent); }
+  .phead .name a .arr {
+    font-family:'JetBrains Mono',monospace; font-size: .72em; color: var(--accent-dim);
+    margin-left: 4px; display: inline-block; transition: transform .18s, color .18s;
+  }
+  .phead .name a:hover .arr { color: var(--accent); transform: translate(2px,-2px); }
+  .phead .tag {
+    font-family:'JetBrains Mono',monospace; font-size: 9.5px; font-weight: 500; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-2);
+    border-radius: 100px; padding: 3px 10px; white-space: nowrap;
+  }
+  .phead .tag.startup { color: var(--accent); border-color: var(--accent-dim); }
+  .desc { color: var(--muted); font-size: 1.02rem; font-weight: 300; line-height: var(--lh); max-width: 60ch; }
 
-  /* ---- i18n: hide the inactive language, never force display ---- */
-  html[lang="ru"] .i18n--en,
-  html[lang="en"] .i18n--ru { display: none !important; }
+  footer { margin-top: 44px; font-family:'JetBrains Mono',monospace; font-size: 11px; letter-spacing: .06em; color: var(--faint); }
 
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  /* i18n */
+  html[lang="ru"] .i18n--en, html[lang="en"] .i18n--ru { display: none !important; }
 
   @media (max-width: 860px) {
-    .page { grid-template-columns: 1fr; gap: 0; padding: 72px 28px 80px; max-width: 640px; }
-    .rail { position: static; margin-bottom: 56px; }
-    .rail .contact { margin-top: 32px; }
-    h1 { font-size: 2.2rem; }
+    .page { grid-template-columns: 1fr; gap: 0; padding: 64px 28px 72px; max-width: 620px; }
+    .rail { position: static; margin-bottom: 52px; }
+    .content { max-width: none; }
   }
   @media (max-width: 460px) {
-    body { font-size: 16px; }
-    .page { padding: 60px 22px 64px; }
-    h1 { font-size: 2rem; }
-    .tagline { font-size: 1.1rem; }
-    section { margin-bottom: 48px; }
+    html { font-size: calc(15px * var(--voice-fs-mul)); }
+    .page { padding: 52px 22px 60px; }
+    h1 { font-size: 2.2rem; }
   }
 </style>
 </head>
 <body>
   <div class="page">
     <aside class="rail">
-      <h1>
-        <span class="i18n--ru">Всеволод Каримов</span>
-        <span class="i18n--en">Vsevolod Karimov</span>
+      <div class="monogram fade">HAMYRAPPY</div>
+      <h1 class="fade d1">
+        <span class="i18n--ru">Всеволод <span class="it">Каримов</span></span>
+        <span class="i18n--en">Vsevolod <span class="it">Karimov</span></span>
       </h1>
-      <p class="tagline">
+      <p class="tagline fade d2">
         <span class="i18n--ru">Создаю агентные системы и инструменты для работы со знанием.</span>
         <span class="i18n--en">I build agentic systems and tools for working with knowledge.</span>
       </p>
 
-      <nav class="lang" aria-label="Язык / Language">
+      <nav class="lang fade d3" aria-label="Язык / Language">
         <button id="btn-ru" class="active" onclick="setLang('ru')">RU</button>
-        <i aria-hidden="true">·</i>
+        <span class="sep" aria-hidden="true">/</span>
         <button id="btn-en" onclick="setLang('en')">EN</button>
       </nav>
 
-      <div class="contact">
-        <div class="contact-label"><span class="i18n--ru">Связаться</span><span class="i18n--en">Contact</span></div>
+      <div class="spec fade d3">
+        <div class="row">
+          <span class="k"><span class="i18n--ru">Магистратура</span><span class="i18n--en">MSc</span></span>
+          <span class="ldr" aria-hidden="true"></span>
+          <span class="v"><span class="i18n--ru">Науки о данных<span class="sub">Skoltech × ВШЭ</span></span><span class="i18n--en">Data Science<span class="sub">Skoltech × HSE</span></span></span>
+        </div>
+        <div class="row">
+          <span class="k"><span class="i18n--ru">Бакалавриат</span><span class="i18n--en">BSc</span></span>
+          <span class="ldr" aria-hidden="true"></span>
+          <span class="v"><span class="i18n--ru">Экономика и статистика<span class="sub">ВШЭ</span></span><span class="i18n--en">Economics &amp; Statistics<span class="sub">HSE</span></span></span>
+        </div>
+        <div class="row">
+          <span class="k"><span class="i18n--ru">Майнор</span><span class="i18n--en">Minor</span></span>
+          <span class="ldr" aria-hidden="true"></span>
+          <span class="v"><span class="i18n--ru">Политология</span><span class="i18n--en">Political science</span></span>
+        </div>
+        <div class="row">
+          <span class="k"><span class="i18n--ru">Фокус</span><span class="i18n--en">Focus</span></span>
+          <span class="ldr" aria-hidden="true"></span>
+          <span class="v"><span class="i18n--ru">NLP · наукометрия · агенты</span><span class="i18n--en">NLP · scientometrics · agents</span></span>
+        </div>
+        <div class="row i18n--ru">
+          <span class="k">Характер</span>
+          <span class="ldr" aria-hidden="true"></span>
+          <span class="v">Самоуверенный</span>
+        </div>
+        <div class="row i18n--ru">
+          <span class="k">Семейный статус</span>
+          <span class="ldr" aria-hidden="true"></span>
+          <span class="v">Не женат</span>
+        </div>
+      </div>
+
+      <div class="contact fade d4">
+        <span class="label"><span class="i18n--ru">Связаться</span><span class="i18n--en">Contact</span></span>
         <div class="contact-list">
-          <a href="mailto:seva@hamyrappy.ru">seva@hamyrappy.ru</a>
-          <a href="https://t.me/hamyrappy" target="_blank" rel="noopener">Telegram</a>
-          <a href="https://github.com/Hamyrappy" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:seva@hamyrappy.ru"><span class="ar">✉</span>seva@hamyrappy.ru</a>
+          <a href="https://t.me/hamyrappy" target="_blank" rel="noopener"><span class="ar">↗</span>Telegram</a>
+          <a href="https://github.com/Hamyrappy" target="_blank" rel="noopener"><span class="ar">↗</span>GitHub</a>
         </div>
       </div>
     </aside>
@@ -161,34 +231,26 @@
     <main class="content">
       <h2 class="sr-only">Всеволод Каримов — личная страница</h2>
 
-      <section>
-        <h2><span class="i18n--ru">О себе</span><span class="i18n--en">About</span></h2>
-        <p class="i18n--ru">Учусь в магистратуре «Математика машинного обучения» Сколтеха и ВШЭ, до этого — бакалавриат ВШЭ по экономике и статистике, майнор в политологии. Занимаюсь NLP, наукометрией, агентными системами и предпринимательством.</p>
-        <p class="i18n--en">Master's student in the Mathematics of Machine Learning programme at Skoltech and HSE, after a BSc in Economics and Statistics at HSE with a minor in political science. I work on NLP, scientometrics, agentic systems, and entrepreneurship.</p>
-        <p class="quip i18n--ru">Характер самоуверенный.<br>Не женат.</p>
-      </section>
-
-      <section>
-        <div class="section-title"><span class="i18n--ru">Проекты</span><span class="i18n--en">Projects</span></div>
-        <p class="lead"><span class="i18n--ru">Технологии развиваются быстрее, чем мы успеваем понять, как с ними жить и как договариваться друг с другом. Мне важно, чтобы моя работа хоть немного сокращала этот разрыв.</span><span class="i18n--en">Technology advances faster than we learn to live with it, or to come to terms with one another. What matters to me is that my work narrows that gap, even a little.</span></p>
+      <section class="fade d3">
+        <span class="label"><span class="i18n--ru">Проекты</span><span class="i18n--en">Projects</span></span>
         <ul class="projects">
           <li>
             <div class="phead">
               <span class="name">AI Clerk</span>
-              <span class="tag"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
+              <span class="tag startup"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
             </div>
             <div class="desc"><span class="i18n--ru">ИИ-менеджер для продавцов на маркетплейсах. Берёт на себя операционку: карточки, рекламу, поставки. Действует сам, селлер лишь подтверждает решения. Мой основной бизнес-проект.</span><span class="i18n--en">An AI manager for marketplace sellers. It takes over operations: listings, ads, shipments. It acts on its own and the seller only approves the decisions. My main business project.</span></div>
           </li>
           <li>
             <div class="phead">
               <span class="name"><span class="i18n--ru">Звонок другу</span><span class="i18n--en">Call a Friend</span></span>
-              <span class="tag"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
+              <span class="tag startup"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
             </div>
             <div class="desc"><span class="i18n--ru">Доступ к ИИ-ассистенту по обычному телефонному звонку. Для людей без смартфона и интернета.</span><span class="i18n--en">Access to an AI assistant over an ordinary phone call. For people without a smartphone or internet.</span></div>
           </li>
           <li>
             <div class="phead">
-              <span class="name"><a class="proj" href="drift-inspector/">Drift Inspector <span class="arr" aria-hidden="true">↗</span></a></span>
+              <span class="name"><a href="drift-inspector/">Drift Inspector <span class="arr" aria-hidden="true">↗</span></a></span>
               <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
             </div>
             <div class="desc"><span class="i18n--ru">Инструмент, который измеряет, как со временем меняются темы в науке. Из статей выделяются отдельные утверждения о вкладе, и по ним виден дрейф целой области. Основа для Графа Науки.</span><span class="i18n--en">A tool that measures how research topics shift over time. It extracts individual contribution claims from papers, and they reveal the drift of a whole field. A foundation for Science Graph.</span></div>
@@ -210,7 +272,7 @@
         </ul>
       </section>
 
-      <footer>
+      <footer class="fade d4">
         <span class="i18n--ru">© 2026 Всеволод Каримов</span>
         <span class="i18n--en">© 2026 Vsevolod Karimov</span>
       </footer>
@@ -223,7 +285,9 @@
       document.getElementById('btn-ru').classList.toggle('active', l === 'ru');
       document.getElementById('btn-en').classList.toggle('active', l === 'en');
       document.title = l === 'en' ? 'Vsevolod Karimov' : 'Всеволод Каримов';
+      try { localStorage.setItem('lang', l); } catch(e){}
     }
+    (function(){ var s; try { s = localStorage.getItem('lang'); } catch(e){} if (s === 'en' || s === 'ru') setLang(s); })();
   </script>
 </body>
 </html>
