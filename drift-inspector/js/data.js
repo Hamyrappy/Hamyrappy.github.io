@@ -41,7 +41,7 @@ window.ACC = (function () {
     if (embedded) {
       state.data = JSON.parse(embedded.textContent);
     } else {
-      const resp = await fetch('data/acc_data.json');
+      const resp = await fetch('data/acc_data.json', { cache: 'no-store' });
       if (!resp.ok) throw new Error('failed to load data/acc_data.json');
       state.data = await resp.json();
     }
@@ -176,7 +176,7 @@ window.ACC = (function () {
     const p = pal();
     const pts = state.data.points;
     const years = state.data.meta.years;
-    const y0 = years[0], y1 = years[years.length - 1];
+    const y0 = years[0];
     const out = new Array(pts.x.length);
     for (let i = 0; i < pts.x.length; i++) {
       const cid = pts.cluster[i];
@@ -191,13 +191,10 @@ window.ACC = (function () {
       } else {
         const c = state.clusterById.get(cid);
         const tc = c.deltaPp >= 0 ? p.up : p.down;
-        const raw = c.reviewed
-          ? `<span style='color:${p.fnt2};font-size:9px'>c-TF-IDF: ${escapeHtml(c.raw)}</span><br>` : '';
         out[i] =
           `<b style='font-size:12.5px'>${escapeHtml(c.label).toUpperCase()}</b> ` +
-          `<span style='color:${tc}'><b>${fmtPp(c.deltaPp)}</b></span><br>` + raw +
-          `<span style='color:${p.fnt};font-size:10px'>Year ${pts.year[i]} · ` +
-          `DF ${y0}: ${fmtPct(c.df[0])} → ${y1}: ${fmtPct(c.df[c.df.length - 1])}</span><br>` +
+          `<span style='color:${tc}'><b>${fmtPp(c.deltaPp)}</b> since ${y0}</span><br>` +
+          `<span style='color:${p.fnt};font-size:10px'>From a ${pts.year[i]} paper</span><br>` +
           `<span>${claim}</span><br>` +
           `<span style='color:${p.fnt2};font-size:10px'><i>${title}</i></span>`;
       }

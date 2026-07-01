@@ -53,7 +53,7 @@ window.TrendsView = (function () {
     Plotly.react(gd, [trace], ACC.plBase({
       height: Math.max(300, rows.length * 26 + 90),
       margin: { l: 230, r: 20, t: 8, b: 36 },
-      xaxis: { title: { text: 'Δ document frequency, pp', font: { size: 11, color: p.mut } },
+      xaxis: { title: { text: 'Δ share of papers, pp', font: { size: 11, color: p.mut } },
                zeroline: true, zerolinecolor: p.line2, gridcolor: p.line, tickfont: { size: 10, color: p.fnt } },
       yaxis: { tickfont: { size: 11, color: p.ink2 }, gridcolor: 'rgba(0,0,0,0)' },
       bargap: 0.25, annotations,
@@ -111,7 +111,7 @@ window.TrendsView = (function () {
       height: 380,
       margin: { l: 50, r: 10, t: 8, b: 36 },
       xaxis: { tickvals: years, tickfont: { size: 11, color: p.fnt }, gridcolor: p.line },
-      yaxis: { title: { text: normalize ? '% of cluster peak' : '% of papers (document frequency)', font: { size: 11, color: p.mut } },
+      yaxis: { title: { text: normalize ? '% of cluster peak' : '% of papers', font: { size: 11, color: p.mut } },
                rangemode: 'tozero', tickfont: { size: 10, color: p.fnt }, gridcolor: p.line, zerolinecolor: p.line2 },
       legend: { orientation: 'h', y: -0.12, font: { size: 10.5, color: p.ink2 } },
       hovermode: 'closest',
@@ -145,7 +145,7 @@ window.TrendsView = (function () {
       const cell = document.createElement('div');
       cell.className = 'spark-cell' + (trajSelection.includes(c.id) ? ' selected' : '');
       cell.dataset.cid = c.id;
-      cell.title = `${c.label} · c-TF-IDF: ${c.raw} · DF: ${c.df.map(v => v.toFixed(1)).join(' → ')}%`;
+      cell.title = `${c.label} · share of papers by year: ${c.df.map(v => v.toFixed(1)).join(' → ')}%`;
       cell.innerHTML =
         `<div class="spark-name">${ACC.escapeHtml(c.label)}</div>` +
         `<div class="spark-delta ${up ? 'up-c' : 'down-c'}">${ACC.fmtPp(c.deltaPp)} · ${ACC.fmtRel(c)}</div>` +
@@ -166,7 +166,7 @@ window.TrendsView = (function () {
     if (built) return;
     built = true;
     const cs = [...visibleClusters()].sort((a, b) => a.deltaPp - b.deltaPp);
-    trajSelection = [...new Set([...cs.slice(0, 3), ...cs.slice(-3)].map(c => c.id))];
+    trajSelection = [...new Set([...cs.slice(0, 1), ...cs.slice(-1)].map(c => c.id))];
 
     drawButterfly(); drawTrajectories(); drawSparks();
 

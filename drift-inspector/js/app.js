@@ -10,6 +10,7 @@
     map: () => MapView.activate(),
     trends: () => TrendsView.activate(),
     clusters: () => ClusterView.activate(),
+    compare: () => CompareView.activate(),
     methods: () => {},
   };
 
@@ -50,6 +51,20 @@
       `<span class="dim">${m.totalPapersPerYear ? 'of ' + m.totalPapersPerYear[i].toLocaleString() : '—'}</span>` +
       `<span>${m.claimsPerYear[i].toLocaleString()}</span></div>`).join('');
 
+    // Auto-generated source statistics (venue · role · years · papers · claims).
+    const sources = ACC.state.data.sources || [];
+    const srcRows = sources.map(s => {
+      const yr = (s.years && s.years.length)
+        ? `${s.years[0]}–${s.years[s.years.length - 1]}` : '—';
+      return `<div class="srcs-row"><span><span class="src-dot" style="background:${s.color}"></span>` +
+        `${ACC.escapeHtml(s.venue)}</span>` +
+        `<span>${s.role === 'clustered' ? 'jointly clustered' : 'overlaid (assigned)'}</span>` +
+        `<span>${yr}</span><span>${(s.nPapers || 0).toLocaleString()}</span>` +
+        `<span>${(s.nClaims || 0).toLocaleString()}</span></div>`;
+    }).join('');
+    const srcTotPapers = sources.reduce((a, s) => a + (s.nPapers || 0), 0).toLocaleString();
+    const srcTotClaims = sources.reduce((a, s) => a + (s.nClaims || 0), 0).toLocaleString();
+
     document.getElementById('methods-body').innerHTML = `
       <div class="methods-section" style="gap:10px">
         <div class="methods-eyebrow">METHODS</div>
@@ -65,7 +80,17 @@
       </div>
 
       <div class="methods-section">
-        <h2 class="methods-h2">Corpus</h2>
+        <h2 class="methods-h2">Sources</h2>
+        <p class="methods-p">The inspector combines one or more claim sources. <b>Jointly clustered</b> sources are embedded and clustered together to define the shared topic space; <b>overlaid</b> sources — other venues added later — are assigned to those existing topics by nearest centroid, so they can be compared and shown on the map without re-clustering. Toggle and highlight any source from the map's <i>Sources</i> menu.</p>
+        <div class="corpus-table">
+          <div class="srcs-row head"><span>SOURCE</span><span>ROLE</span><span>YEARS</span><span>PAPERS</span><span>CLAIMS</span></div>
+          ${srcRows}
+          <div class="srcs-row total"><span>Total</span><span></span><span></span><span>${srcTotPapers}</span><span>${srcTotClaims}</span></div>
+        </div>
+      </div>
+
+      <div class="methods-section">
+        <h2 class="methods-h2">Clustered corpus</h2>
         <div class="corpus-table">
           <div class="corpus-row head"><span>YEAR</span><span>SAMPLED</span><span>OF TOTAL</span><span>CLAIMS</span></div>
           ${corpusRows}
@@ -78,6 +103,8 @@
         <p class="methods-p"><b class="serif">Map.</b> Every claim as a point in SPECTER2/UMAP space. Filter by year, recolor by drift trend — a relative scale built on the log-ratio of the ${y1} vs ${y0} share, so newly emerged or multi-fold-grown clusters read stronger than large clusters with modest growth (an ×8 change saturates the color). Search claims and titles, pin any point's card with a link to the source paper, isolate clusters from the legend (ctrl/cmd-click to combine).</p>
         <p class="methods-p"><b class="serif">Trends.</b> The ${y0} → ${y1} document-frequency shift as a butterfly chart, per-year trajectories for selected clusters (click bars or sparklines to add, capped at 12 lines for readability), and a sparkline overview of every cluster.</p>
         <p class="methods-p"><b class="serif">Clusters.</b> One cluster in depth: share of papers by year, its position in claim space, and all of its claims with links to the source papers — exportable as CSV.</p>
+        <p class="methods-p"><b class="serif">Compare.</b> Two subsamples — a conference, an author, or a keyword set — side by side: each one's own topic profile, the gap between them, and how a subsample drifts across years. Leave the second subsample empty to study just one.</p>
+        <p class="methods-p faint">A note on wording. Across the app, <b>share of papers</b> is a cluster's <i>document frequency</i> — the percentage of that year's sampled papers contributing at least one claim to the cluster — and <b>pp</b> (percentage points) is the change in that share from ${y0} to ${y1} (a move from 5% to 12% is +7&nbsp;pp). The drift colors and ▲/▼ arrows are driven by this measure; the “key terms” on the Clusters page are each cluster's raw c-TF-IDF descriptors; point positions come from the SPECTER2 / UMAP projection described above.</p>
       </div>
 
       <div class="methods-section">
@@ -95,6 +122,7 @@
     MapView.rebuildTheme();
     TrendsView.rebuildTheme();
     ClusterView.rebuildTheme();
+    CompareView.rebuildTheme();
   });
 
   // ⌘K / Ctrl-K focuses the map search.
@@ -117,7 +145,7 @@
     document.getElementById('brand-sub').textContent = m.subtitle || '';
     document.title = (m.title || 'Drift Inspector') + (m.subtitle ? ' — ' + m.subtitle : '');
     document.getElementById('butterfly-title').textContent =
-      `Document-frequency shift ${m.years[0]} → ${m.years.at(-1)}`;
+      `Topic-share shift ${m.years[0]} → ${m.years.at(-1)}`;
     document.getElementById('intro-year0').textContent = m.years[0];
     document.getElementById('corpus-meta').textContent =
       `${m.nClaims.toLocaleString()} claims · ${m.nClusters} clusters · ${totalPapers.toLocaleString()} papers`;

@@ -1,9 +1,10 @@
 /* ==========================================================================
-   map.js — the Map view: WebGL scatter of all claims (v5 design).
-   Traces: 0 noise · 1 clustered points · 2 search overlay.
-   Cluster labels are layout annotations (not a trace). Every filter / color /
-   search / theme change rebuilds via Plotly.react (uirevision keeps the
-   viewport unless Auto-fit is on).
+   map.js — the Map view: WebGL scatter of all claims across sources.
+   Every display source (jointly-clustered or overlaid) is an equal "layer":
+   independently shown/hidden, coloured by cluster, hover-labelled by cluster,
+   and optionally highlighted in its own colour. Cluster labels are layout
+   annotations. Plotly.react rebuilds on every filter/colour/source/theme change
+   (uirevision keeps the viewport unless Auto-fit is on).
    ========================================================================== */
 'use strict';
 
@@ -13,37 +14,72 @@ window.MapView = (function () {
   let showLabels = true, showNoise = true, autoFit = false;
   let searchQ = '';
   let pinEl = null;
+  let visibleSources = null;            // Set of source ids drawn on the map
+  let highlightSources = new Set();     // sources drawn in their own colour
 
-  /* --------------------------- filtering -------------------------------- */
-  function pointLayer(i) {
-    const pts = ACC.state.data.points;
-    if (ACC.state.year !== 'ALL' && pts.year[i] !== ACC.state.year) return null;
-    const cid = pts.cluster[i];
-    if (cid === -1) return showNoise ? 'noise' : null;
-    const sel = ACC.state.selectedClusters;
-    return (!sel.size || sel.has(cid)) ? 'pts' : null;
-  }
-  function computeIndices() {
-    const pts = ACC.state.data.points;
-    const noise = [], idx = [];
-    for (let i = 0; i < pts.x.length; i++) {
-      const l = pointLayer(i);
-      if (l === 'noise') noise.push(i);
-      else if (l === 'pts') idx.push(i);
+  /* ----------------------------- layers --------------------------------- */
+  // All venues are jointly clustered and live together in `points`, tagged by
+  // `points.source` (index into `sources`). A layer is that venue's slice — so
+  // every source is equal: independently shown/hidden, cluster-coloured, and
+  // optionally highlighted in its own colour. Memoised (points are static).
+  let _layers = null;
+  function sourceLayers() {
+    if (_layers) return _layers;
+    const d = ACC.state.data, P = d.points, src = P.source || [];
+    const layers = (d.sources || []).map(s => ({
+      id: s.id, venue: s.venue, color: s.color, base: !!s.base,
+      x: [], y: [], year: [], cluster: [], claim: [], paper: [],
+      papers: d.papers, titles: d.titles }));
+    if (layers.length) {
+      for (let i = 0; i < P.x.length; i++) {
+        const l = layers[src[i]] || layers[0];
+        l.x.push(P.x[i]); l.y.push(P.y[i]); l.year.push(P.year[i]);
+        l.cluster.push(P.cluster[i]); l.claim.push(P.claim[i]); l.paper.push(P.paper[i]);
+      }
     }
-    return { noise, pts: idx };
+    _layers = layers;
+    return layers;
   }
-  const sl = (list, arr) => list.map(i => arr[i]);
+  function visibleLayers() { return sourceLayers().filter(l => visibleSources.has(l.id)); }
 
-  function pointColors(idx) {
-    const pts = ACC.state.data.points;
+  function layerIndices(layer) {
+    const sel = ACC.state.selectedClusters, yr = ACC.state.year;
+    const pts = [], noise = [];
+    for (let i = 0; i < layer.x.length; i++) {
+      if (yr !== 'ALL' && layer.year[i] !== yr) continue;
+      const cid = layer.cluster[i];
+      if (cid === -1) { if (showNoise) noise.push(i); continue; }
+      if (sel.size && !sel.has(cid)) continue;
+      pts.push(i);
+    }
+    return { pts, noise };
+  }
+
+  function clusteredColors(layer, idx) {
+    if (highlightSources.has(layer.id)) return idx.map(() => layer.color);
     const drift = ACC.state.colorMode === 'drift';
     return idx.map(i => {
-      const c = ACC.state.clusterById.get(pts.cluster[i]);
+      const c = ACC.state.clusterById.get(layer.cluster[i]);
       return drift ? ACC.driftColor(c) : ACC.clusterColor(c);
     });
   }
 
+  /* ---------------------------- tooltips -------------------------------- */
+  function tipFor(layer, i) { return overlayTip(layer, i); }   // cluster-led + venue
+  function overlayTip(layer, i) {
+    const p = ACC.pal();
+    const c = ACC.state.clusterById.get(layer.cluster[i]);
+    const tc = c && c.deltaPp >= 0 ? p.up : p.down;
+    const claim = ACC.wrapHtml(layer.claim[i], 64);
+    const title = ACC.wrapHtml(layer.titles[layer.paper[i]] || '', 64);
+    return `<b style='font-size:12.5px'>${c ? ACC.escapeHtml(c.label).toUpperCase() : 'UNCLUSTERED'}</b> ` +
+      (c ? `<span style='color:${tc}'><b>${ACC.fmtPp(c.deltaPp)}</b> since ${ACC.state.data.meta.years[0]}</span>` : '') + '<br>' +
+      `<span style='color:${p.fnt};font-size:10px'>From a ${layer.year[i]} ${ACC.escapeHtml(layer.venue)} paper</span><br>` +
+      `<span>${claim}</span><br>` +
+      `<span style='color:${p.fnt2};font-size:10px'><i>${title}</i></span>`;
+  }
+
+  /* --------------------------- annotations ------------------------------ */
   function labelAnnotations() {
     const p = ACC.pal();
     const pts = ACC.state.data.points;
@@ -65,15 +101,20 @@ window.MapView = (function () {
   /* ------------------------------ search -------------------------------- */
   function searchMatches() {
     if (searchQ.length < 3) return null;
-    const pts = ACC.state.data.points, titles = ACC.state.data.titles;
+    const lq = searchQ.toLowerCase();
+    const sel = ACC.state.selectedClusters, yr = ACC.state.year;
     const xs = [], ys = [], per = new Map();
     let hidden = 0;
-    const lq = searchQ.toLowerCase();
-    for (let i = 0; i < pts.x.length; i++) {
-      if (pts.claim[i].toLowerCase().includes(lq) || titles[pts.paper[i]].toLowerCase().includes(lq)) {
-        if (pointLayer(i) === null) { hidden++; continue; }
-        xs.push(pts.x[i]); ys.push(pts.y[i]);
-        per.set(pts.cluster[i], (per.get(pts.cluster[i]) || 0) + 1);
+    for (const layer of visibleLayers()) {
+      for (let i = 0; i < layer.x.length; i++) {
+        const tit = layer.titles[layer.paper[i]] || '';
+        if (!(layer.claim[i].toLowerCase().includes(lq) || tit.toLowerCase().includes(lq))) continue;
+        const cid = layer.cluster[i];
+        let vis = !(yr !== 'ALL' && layer.year[i] !== yr);
+        vis = vis && (cid === -1 ? showNoise : (!sel.size || sel.has(cid)));
+        if (!vis) { hidden++; continue; }
+        xs.push(layer.x[i]); ys.push(layer.y[i]);
+        per.set(cid, (per.get(cid) || 0) + 1);
       }
     }
     return { xs, ys, per, hidden };
@@ -107,22 +148,31 @@ window.MapView = (function () {
 
   /* ------------------------------- traces ------------------------------- */
   function mapTraces() {
-    const pts = ACC.state.data.points;
-    const tt = ACC.tooltips();
     const p = ACC.pal();
-    const idx = computeIndices();
+    const traces = [];
+    for (const layer of visibleLayers()) {
+      const { pts, noise } = layerIndices(layer);
+      const hl = highlightSources.has(layer.id);
+      if (noise.length) {
+        traces.push({ type: 'scattergl', mode: 'markers',
+          x: noise.map(i => layer.x[i]), y: noise.map(i => layer.y[i]),
+          text: noise.map(i => tipFor(layer, i)), customdata: noise.map(i => [layer.id, i]),
+          hoverinfo: 'text', name: layer.venue + ' · unclustered',
+          marker: { symbol: 'circle-open', size: 3, color: hl ? layer.color : p.noise } });
+      }
+      traces.push({ type: 'scattergl', mode: 'markers',
+        x: pts.map(i => layer.x[i]), y: pts.map(i => layer.y[i]),
+        text: pts.map(i => tipFor(layer, i)), customdata: pts.map(i => [layer.id, i]),
+        hoverinfo: 'text', name: layer.venue,
+        marker: { size: layer.base ? 5.5 : 6, opacity: hl ? 0.95 : 0.88,
+                  symbol: hl ? 'diamond' : 'circle', color: clusteredColors(layer, pts),
+                  line: hl ? { width: 0.5, color: p.plot } : { width: 0 } } });
+    }
     const m = searchMatches();
-    return [
-      { type: 'scattergl', mode: 'markers', x: sl(idx.noise, pts.x), y: sl(idx.noise, pts.y),
-        text: sl(idx.noise, tt), customdata: idx.noise, hoverinfo: 'text',
-        marker: { symbol: 'circle-open', size: 3, color: p.noise }, name: 'Unclustered' },
-      { type: 'scattergl', mode: 'markers', x: sl(idx.pts, pts.x), y: sl(idx.pts, pts.y),
-        text: sl(idx.pts, tt), customdata: idx.pts, hoverinfo: 'text',
-        marker: { size: 5.5, color: pointColors(idx.pts), opacity: 0.88 }, name: 'Claims' },
-      { type: 'scattergl', mode: 'markers', x: m ? m.xs : [], y: m ? m.ys : [],
-        visible: !!(m && m.xs.length), hoverinfo: 'skip',
-        marker: { symbol: 'circle-open', size: 13, color: p.ink, line: { width: 2.5, color: p.ink } } },
-    ];
+    traces.push({ type: 'scattergl', mode: 'markers', x: m ? m.xs : [], y: m ? m.ys : [],
+      visible: !!(m && m.xs.length), hoverinfo: 'skip', customdata: null,
+      marker: { symbol: 'circle-open', size: 13, color: p.ink, line: { width: 2.5, color: p.ink } } });
+    return traces;
   }
 
   /** Current viewport, or null before the first plot. */
@@ -133,8 +183,6 @@ window.MapView = (function () {
   }
 
   function draw() {
-    // Auto-fit off: pin the viewport explicitly, otherwise Plotly.react
-    // re-runs autorange whenever the (filtered) data extents change.
     const keep = autoFit ? null : currentRanges();
     const layout = ACC.plBase({
       showlegend: false,
@@ -156,12 +204,13 @@ window.MapView = (function () {
   /* ------------------------------ pin card ------------------------------ */
   function dismissPin() { if (pinEl) { pinEl.remove(); pinEl = null; } }
 
-  function pinCard(i, px, py) {
+  function pinCard(layer, i, px, py) {
     dismissPin();
-    const pts = ACC.state.data.points;
-    const cid = pts.cluster[i];
+    const cid = layer.cluster[i];
     const c = cid === -1 ? null : ACC.state.clusterById.get(cid);
     const years = ACC.state.data.meta.years;
+    const pid = layer.papers[layer.paper[i]];
+    const url = ACC.state.data.meta.anthologyBase + pid;
     const card = document.createElement('div');
     card.className = 'pin-card';
     card.dataset.pin = '1';
@@ -169,17 +218,17 @@ window.MapView = (function () {
       `<span class="pin-label">${c ? ACC.escapeHtml(c.label) : 'Unclustered claim'}</span>`;
     if (c) {
       const dc = c.deltaPp >= 0 ? 'up-c' : 'down-c';
-      html += `<span class="pin-delta ${dc}">${c.deltaPp >= 0 ? '▲ ' : '▼ '}${ACC.fmtPp(c.deltaPp)}</span>`;
+      html += `<span class="pin-delta ${dc}" title="how this cluster's share of papers changed, ${years[0]}→${years[years.length - 1]}">` +
+        `${c.deltaPp >= 0 ? '▲ ' : '▼ '}${ACC.fmtPp(c.deltaPp)} since ${years[0]}</span>`;
     }
     html += '</div>';
-    if (c && c.reviewed) html += `<div class="pin-raw">c-TF-IDF · ${ACC.escapeHtml(c.raw)}</div>`;
-    html += '<div class="pin-meta">' + (c
-      ? `${pts.year[i]} · DF ${years[0]}: ${ACC.fmtPct(c.df[0])} → ${years[years.length - 1]}: ${ACC.fmtPct(c.df[c.df.length - 1])}`
-      : `Year ${pts.year[i]}`) + '</div>';
-    html += `<div class="pin-claim">${ACC.escapeHtml(pts.claim[i])}</div>`;
-    html += `<div class="pin-title">${ACC.escapeHtml(ACC.state.data.titles[pts.paper[i]])}</div>`;
+    html += '<div class="pin-meta">' +
+      `<span class="pin-src" style="border-color:${layer.color};color:${layer.color}">${ACC.escapeHtml(layer.venue)}</span>` +
+      ` From a ${layer.year[i]} paper</div>`;
+    html += `<div class="pin-claim">${ACC.escapeHtml(layer.claim[i])}</div>`;
+    html += `<div class="pin-title">${ACC.escapeHtml(layer.titles[layer.paper[i]] || '')}</div>`;
     html += '<div class="pin-actions">' +
-      `<a href="${ACC.paperUrl(pts.paper[i])}" target="_blank">Open in Anthology ↗</a>` +
+      `<a href="${url}" target="_blank">Open in Anthology ↗</a>` +
       `<span class="link pin-goto">${c ? 'Cluster details' : 'Unclustered details'} →</span></div>`;
     card.innerHTML = html;
     const rect = wrap.getBoundingClientRect();
@@ -202,8 +251,8 @@ window.MapView = (function () {
       const isSel = sel.has(c.id);
       const item = document.createElement('div');
       item.className = 'legend-item' + (isSel ? ' selected' : (sel.size ? ' dimmed' : ''));
-      item.title = `${c.label} · c-TF-IDF: ${c.raw} · ${c.size} claims · ` +
-        `${ACC.fmtPp(c.deltaPp)} (${ACC.fmtRel(c)}) — click: isolate · ctrl/cmd-click: add · double-click: details`;
+      item.title = `${c.label} · ${c.size.toLocaleString()} claims · ` +
+        `${ACC.fmtPp(c.deltaPp)} since ${ACC.state.data.meta.years[0]} — click: isolate · ctrl/cmd-click: add · double-click: details`;
       item.innerHTML =
         `<span class="legend-dot" style="background:${ACC.clusterColor(c)}"></span>` +
         `<span class="legend-name">${ACC.escapeHtml(c.label)}</span>` +
@@ -218,6 +267,54 @@ window.MapView = (function () {
       item.addEventListener('dblclick', () => ACC.emit('open-cluster', c.id));
       list.appendChild(item);
     }
+  }
+
+  /* --------------------------- sources menu ----------------------------- */
+  function renderSourcesPop() {
+    const pop = document.getElementById('sources-pop');
+    const sources = ACC.state.data.sources || [];
+    pop.innerHTML = '<div class="pop-head">SOURCE · SHOW / HIGHLIGHT</div>';
+    for (const s of sources) {
+      const row = document.createElement('label');
+      row.className = 'src-row';
+      const vis = document.createElement('input');
+      vis.type = 'checkbox'; vis.checked = visibleSources.has(s.id);
+      vis.addEventListener('change', () => {
+        if (vis.checked) visibleSources.add(s.id); else visibleSources.delete(s.id);
+        refresh();
+      });
+      const lab = document.createElement('span');
+      lab.className = 'src-label';
+      lab.innerHTML =
+        `<span class="src-dot" style="background:${s.color}"></span>${ACC.escapeHtml(s.venue)}` +
+        `<br><span class="sub">${s.role === 'clustered' ? 'clustered' : 'overlaid'} · ${(s.nClaims || 0).toLocaleString()} claims</span>`;
+      const hl = document.createElement('button');
+      hl.type = 'button';
+      hl.className = 'src-hl' + (highlightSources.has(s.id) ? ' on' : '');
+      hl.title = 'highlight this source in its own colour';
+      hl.textContent = '◑'; hl.style.color = s.color;
+      hl.addEventListener('click', e => {
+        e.preventDefault();
+        if (highlightSources.has(s.id)) highlightSources.delete(s.id); else highlightSources.add(s.id);
+        hl.classList.toggle('on');
+        refresh();
+      });
+      row.appendChild(vis); row.appendChild(lab); row.appendChild(hl);
+      pop.appendChild(row);
+    }
+  }
+
+  function buildSourcesPop() {
+    const btn = document.getElementById('sources-btn');
+    const pop = document.getElementById('sources-pop');
+    if (!btn || !pop) return;
+    const sources = ACC.state.data.sources || [];
+    if (sources.length <= 1) { btn.parentElement.hidden = true; return; }
+    renderSourcesPop();
+    btn.addEventListener('click', () => { pop.hidden = !pop.hidden; });
+    document.addEventListener('mousedown', e => {
+      if (!pop.hidden && !pop.contains(e.target) && !btn.contains(e.target)) pop.hidden = true;
+    });
   }
 
   /* ------------------------------ controls ------------------------------ */
@@ -254,7 +351,6 @@ window.MapView = (function () {
       cb.appendChild(b);
     });
 
-    // display popover
     const dBtn = document.getElementById('display-btn');
     const dPop = document.getElementById('display-pop');
     dBtn.addEventListener('click', () => { dPop.hidden = !dPop.hidden; });
@@ -273,7 +369,8 @@ window.MapView = (function () {
       if (autoFit) Plotly.relayout(gd, { 'xaxis.autorange': true, 'yaxis.autorange': true });
     });
 
-    // search
+    buildSourcesPop();
+
     let timer = null;
     document.getElementById('map-search').addEventListener('input', e => {
       clearTimeout(timer);
@@ -281,24 +378,20 @@ window.MapView = (function () {
       timer = setTimeout(() => { searchQ = q; refresh(); }, 250);
     });
 
-    // legend
     document.getElementById('legend-filter').addEventListener('input', renderLegend);
     document.getElementById('legend-reset').addEventListener('click', () => {
       ACC.state.selectedClusters.clear(); renderLegend(); refresh();
     });
 
-    // intro
     const overlay = document.getElementById('intro-overlay');
-    const closeIntro = () => {
-      try { localStorage.setItem('di5.introDismissed', '1'); } catch (e) {}
-      overlay.hidden = true;
-    };
+    const openIntro = () => { overlay.hidden = false; };
+    const closeIntro = () => { overlay.hidden = true; };
     document.getElementById('intro-dismiss').addEventListener('click', closeIntro);
     document.getElementById('intro-methods').addEventListener('click', () => { closeIntro(); ACC.emit('switch-view', 'methods'); });
-    document.getElementById('reopen-intro').addEventListener('click', () => { overlay.hidden = false; });
-    let introDismissed = false;
-    try { introDismissed = localStorage.getItem('di5.introDismissed') === '1'; } catch (e) {}
-    overlay.hidden = introDismissed;
+    document.getElementById('reopen-intro').addEventListener('click', openIntro);
+    const helpBtn = document.getElementById('map-help');
+    if (helpBtn) helpBtn.addEventListener('click', openIntro);
+    overlay.hidden = true;
   }
 
   /* ------------------------------- build -------------------------------- */
@@ -308,15 +401,23 @@ window.MapView = (function () {
     gd = document.getElementById('map-plot');
     wrap = document.getElementById('map-plot-wrap');
 
+    // All venues are jointly clustered, so show them all by default; each is
+    // independently toggleable from the Sources menu.
+    const sources = ACC.state.data.sources || [];
+    visibleSources = new Set(sources.map(s => s.id));
+
     draw();
     gd.on('plotly_click', ev => {
       if (!ev.points || !ev.points.length) return;
       const pt = ev.points[0];
-      if (pt.curveNumber > 1) return;              // ignore search overlay
-      const i = pt.customdata;
+      const cd = pt.customdata;
+      if (!Array.isArray(cd)) return;             // search ring / non-point trace
+      const [sid, idx] = cd;
+      const layer = sourceLayers().find(l => l.id === sid);
+      if (!layer) return;
       const rect = wrap.getBoundingClientRect();
       const px = ev.event.clientX - rect.left, py = ev.event.clientY - rect.top;
-      setTimeout(() => pinCard(i, px, py), 0);
+      setTimeout(() => pinCard(layer, idx, px, py), 0);
     });
     document.addEventListener('mousedown', e => {
       if (pinEl && !e.target.closest('[data-pin]')) dismissPin();
@@ -334,7 +435,6 @@ window.MapView = (function () {
   function isolate(cid) {
     ACC.state.selectedClusters.clear();
     ACC.state.selectedClusters.add(cid);
-    // Isolating the unclustered layer only makes sense with noise visible.
     if (cid === -1 && !showNoise) {
       showNoise = true;
       const t = document.getElementById('toggle-noise');

@@ -57,22 +57,22 @@ window.ClusterView = (function () {
     const dir = c.deltaPp >= 0 ? 'up-c' : 'down-c';
     const badge = (k, v, cls) => `<span class="badge">${k} <b class="${cls || ''}">${v}</b></span>`;
     const subtitle = isNoise
-      ? '<div class="detail-raw">one-off contributions not assigned to any cluster (HDBSCAN noise)</div>'
-      : (c.reviewed ? `<div class="detail-raw">c-TF-IDF descriptor · ${ACC.escapeHtml(c.raw)}</div>` : '');
+      ? '<div class="detail-raw">one-off claims that didn’t fit any cluster</div>'
+      : `<div class="detail-raw">Key terms · ${ACC.escapeHtml(c.tfidfFull || c.raw)}</div>`;
     const detail = document.getElementById('cluster-detail');
     detail.innerHTML = `
       <div class="detail-wrap">
         <div class="detail-head">
           <div class="detail-title-row">
             <span class="detail-dot" style="background:${ACC.clusterColor(c)}"></span>
-            <span class="detail-title">${ACC.escapeHtml(c.label)}</span>
+            <span class="detail-title">${ACC.escapeHtml(c.labelFull || c.label)}</span>
           </div>
           ${subtitle}
           <div class="detail-badges">
             ${badge('claims', c.size.toLocaleString())}
             ${badge('papers', c.papers.toLocaleString())}
-            ${badge('DF ' + years[0], ACC.fmtPct(c.df[0]))}
-            ${badge('DF ' + years[years.length - 1], ACC.fmtPct(c.df[c.df.length - 1]))}
+            ${badge(years[0] + ' share', ACC.fmtPct(c.df[0]))}
+            ${badge(years[years.length - 1] + ' share', ACC.fmtPct(c.df[c.df.length - 1]))}
             ${badge('Δ', ACC.fmtPp(c.deltaPp) + ' (' + ACC.fmtRel(c) + ')', dir)}
             <span style="flex:1"></span>
             <button class="btn-outline" id="detail-show-map">Show on map</button>
@@ -85,9 +85,14 @@ window.ClusterView = (function () {
             <div id="detail-bars"></div>
           </div>
           <div class="detail-card">
-            <div class="detail-card-title">Position in claim space</div>
+            <div class="detail-card-title">Position on the map</div>
             <div id="detail-minimap"></div>
           </div>
+        </div>
+        <div class="detail-card detail-card-wide" id="detail-byconf-card">
+          <div class="detail-card-title">By conference — where this topic lives</div>
+          <div class="byconf-summary" id="detail-byconf-summary"></div>
+          <div id="detail-byconf"></div>
         </div>
         <div class="claims-card">
           <div class="claims-head">
@@ -135,7 +140,64 @@ window.ClusterView = (function () {
 
     drawBars(c, years);
     drawMinimap(c);
+    drawByConference(c);
     buildClaims(c);
+  }
+
+  /* -------------------------- by-conference ----------------------------- */
+  // For the selected cluster, split its prevalence by source (venue): each
+  // venue's share of ITS OWN papers that fall in this cluster, per year — so a
+  // topic that is big in ACL but small in EMNLP reads correctly (not confounded
+  // by the venues' different sizes).
+  function venueBreakdown(cid) {
+    const d = ACC.state.data, P = d.points, srcs = d.sources || [], years = d.meta.years;
+    const yi = new Map(years.map((y, k) => [y, k]));
+    const per = srcs.map(() => ({ papers: years.map(() => new Set()), claims: years.map(() => 0) }));
+    const src = P.source || [];
+    for (let i = 0; i < P.x.length; i++) {
+      if (P.cluster[i] !== cid) continue;
+      const si = src[i], k = yi.get(P.year[i]);
+      if (si == null || k === undefined || !per[si]) continue;
+      per[si].claims[k]++; per[si].papers[k].add(P.paper[i]);
+    }
+    return srcs.map((s, si) => {
+      const ppy = s.papersPerYear || years.map(() => 0);
+      const papersByYear = per[si].papers.map(st => st.size);
+      const df = years.map((_, k) => ppy[k] ? +(100 * papersByYear[k] / ppy[k]).toFixed(3) : null);
+      const nPapers = papersByYear.reduce((a, b) => a + b, 0);
+      const nClaims = per[si].claims.reduce((a, b) => a + b, 0);
+      const overallDf = s.nPapers ? 100 * nPapers / s.nPapers : 0;   // share of the venue's papers
+      return { venue: s.venue, color: s.color, df, papersByYear, nPapers, nClaims, overallDf };
+    }).filter(v => v.nClaims > 0);
+  }
+
+  function drawByConference(c) {
+    const years = ACC.state.data.meta.years, p = ACC.pal();
+    const rows = venueBreakdown(c.id);
+    const totalClaims = rows.reduce((a, r) => a + r.nClaims, 0) || 1;
+    // per-venue summary chips: composition (% of the cluster) + prevalence (% of the venue)
+    document.getElementById('detail-byconf-summary').innerHTML = rows.map(r =>
+      `<span class="byconf-chip" style="border-left-color:${r.color}">` +
+      `<span class="byconf-v" style="color:${r.color}">${ACC.escapeHtml(r.venue)}</span>` +
+      `<b>${(r.nClaims / totalClaims * 100).toFixed(0)}%</b> of cluster · ` +
+      `<b>${r.overallDf.toFixed(1)}%</b> of its papers · ${r.nClaims.toLocaleString()} claims</span>`).join('');
+    // per-venue prevalence over years (share of each venue's papers in this cluster)
+    const traces = rows.map(r => ({
+      type: 'scatter', mode: 'lines+markers', x: years, y: r.df, name: r.venue,
+      // non-annual venues (year gaps) get a dashed connector across the missing years
+      connectgaps: true,
+      line: { width: 2.4, dash: r.df.some(v => v == null) ? 'dot' : 'solid', color: r.color },
+      marker: { size: 6, color: r.color },
+      customdata: r.papersByYear,
+      hovertemplate: `<b>${ACC.escapeHtml(r.venue)}</b><br>%{x}: %{y:.1f}% of its papers · %{customdata} here<extra></extra>`,
+    }));
+    Plotly.react(document.getElementById('detail-byconf'), traces, ACC.plBase({
+      height: 250, margin: { l: 44, r: 10, t: 8, b: 28 },
+      xaxis: { tickvals: years, tickfont: { size: 11, color: p.fnt }, gridcolor: p.line },
+      yaxis: { title: { text: '% of the venue’s papers', font: { size: 10.5, color: p.mut } },
+               rangemode: 'tozero', tickfont: { size: 10, color: p.fnt }, gridcolor: p.line, zerolinecolor: p.line2 },
+      legend: { orientation: 'h', y: -0.16, font: { size: 10.5, color: p.ink2 } }, hovermode: 'closest',
+    }), ACC.plConfig({ displayModeBar: false }));
   }
 
   /* ------------------------------ charts -------------------------------- */
@@ -227,11 +289,15 @@ window.ClusterView = (function () {
 
     const listEl = document.getElementById('claims-list');
     listEl.innerHTML = '';
+    const srcs = ACC.state.data.sources || [], psrc = pts.source || [];
     for (const i of idx.slice(0, claimsShown)) {
       const div = document.createElement('div');
       div.className = 'claim-row';
+      const s = srcs[psrc[i]] || {};
+      const vchip = s.venue
+        ? `<span class="claim-venue" style="color:${s.color};border-color:${s.color}">${ACC.escapeHtml(s.venue)}</span> ` : '';
       div.innerHTML = ACC.escapeHtml(pts.claim[i]) +
-        `<div class="claim-src"><span class="yr">${pts.year[i]}</span> · ` +
+        `<div class="claim-src">${vchip}<span class="yr">${pts.year[i]}</span> · ` +
         `<a href="${ACC.paperUrl(pts.paper[i])}" target="_blank">${ACC.escapeHtml(titles[pts.paper[i]])}</a></div>`;
       listEl.appendChild(div);
     }

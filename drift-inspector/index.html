@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Drift Inspector — EMNLP 2020–2025</title>
+<title>Drift Inspector</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/inspector.css">
+<link rel="stylesheet" href="css/inspector.css?v=7">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
       <button class="tab active" data-view="map" role="tab">Map</button>
       <button class="tab" data-view="trends" role="tab">Trends</button>
       <button class="tab" data-view="clusters" role="tab">Clusters</button>
+      <button class="tab" data-view="compare" role="tab">Compare</button>
       <button class="tab" data-view="methods" role="tab">Methods</button>
     </nav>
     <div class="topbar-right">
@@ -47,11 +48,11 @@
         <div class="display-pop" id="display-pop" hidden>
           <label class="display-opt">
             <input type="checkbox" id="toggle-labels" checked>
-            <span>Cluster labels<br><span class="sub">boxed names at the 15 largest centroids</span></span>
+            <span>Cluster labels<br><span class="sub">boxed names on the 15 biggest clusters</span></span>
           </label>
           <label class="display-opt">
             <input type="checkbox" id="toggle-noise" checked>
-            <span>Unclustered claims<br><span class="sub">one-off contributions (<span id="noise-pct">—</span> of claims)</span></span>
+            <span>Unclustered claims<br><span class="sub">one-off claims, not in any cluster (<span id="noise-pct">—</span> of all)</span></span>
           </label>
           <label class="display-opt">
             <input type="checkbox" id="toggle-autofit">
@@ -59,6 +60,11 @@
           </label>
         </div>
       </div>
+      <div class="display-wrap">
+        <button class="display-btn" id="sources-btn">Sources <span class="caret">▼</span></button>
+        <div class="display-pop" id="sources-pop" hidden></div>
+      </div>
+      <button class="help-btn" id="map-help" title="How to read this map" aria-label="How to read this map">?</button>
       <div class="search-wrap">
         <div class="search-box">
           <input type="text" id="map-search" placeholder="Search claims &amp; titles…">
@@ -78,9 +84,9 @@
             <div class="intro-eyebrow" id="intro-count"></div>
             <div class="intro-title">Reading the claim map</div>
             <div class="intro-steps">
-              <div class="intro-step"><span class="intro-num">01</span><span class="txt">Every point is one <b>atomic contribution claim</b> — a self-contained contribution statement extracted from a paper abstract.</span></div>
-              <div class="intro-step"><span class="intro-num">02</span><span class="txt"><b>Position is semantic</b> — SPECTER2 embeddings projected with UMAP. Nearby points make similar claims.</span></div>
-              <div class="intro-step"><span class="intro-num">03</span><span class="txt"><b>Color is the topic cluster.</b> Switch to <i>Drift</i> to see where the field is moving — <span class="up-c" style="font-weight:600">growing</span> vs <span class="down-c" style="font-weight:600">declining</span> since <span id="intro-year0">the first year</span>.</span></div>
+              <div class="intro-step"><span class="intro-num">01</span><span class="txt">Every point is one <b>contribution claim</b> — a single thing a paper says it contributed, pulled from its abstract.</span></div>
+              <div class="intro-step"><span class="intro-num">02</span><span class="txt"><b>Points close together make similar claims.</b> Color groups them into clusters — use the legend on the right to focus on one.</span></div>
+              <div class="intro-step"><span class="intro-num">03</span><span class="txt">Switch <b>color</b> to <i>Drift</i> to see what's <span class="up-c" style="font-weight:600">growing</span> vs <span class="down-c" style="font-weight:600">declining</span> since <span id="intro-year0">the first year</span>. Hover a point to read its claim; click to pin it with a link to the paper.</span></div>
             </div>
             <div class="intro-actions">
               <button class="btn-primary" id="intro-dismiss">Explore the map</button>
@@ -94,11 +100,14 @@
         <div class="legend-head">
           <div class="legend-head-row">
             <span class="ttl">CLUSTERS</span>
-            <button class="link" id="legend-reset">Reset</button>
           </div>
           <input type="text" class="field" id="legend-filter" placeholder="Filter clusters…">
         </div>
         <div class="legend-list" id="legend-list"></div>
+        <div class="legend-foot">
+          <span class="legend-foot-hint">click to focus · ctrl/⌘-click to combine</span>
+          <button class="link" id="legend-reset">Reset</button>
+        </div>
       </aside>
     </div>
 
@@ -106,7 +115,7 @@
       <span id="map-search-count"></span>
       <span class="spacer"></span>
       <span class="hint-legend">hover a point for its claim · click to pin · drift: <span class="hint-sw down"></span> declining → <span class="hint-sw up"></span> growing</span>
-      <button class="link" id="reopen-intro" style="margin-left:12px">about this map</button>
+      <button class="link" id="reopen-intro" style="margin-left:12px">how to read this map</button>
     </div>
   </section>
 
@@ -116,7 +125,7 @@
 
       <div class="card">
         <div class="card-head">
-          <span class="card-title" id="butterfly-title">Document-frequency shift</span>
+          <span class="card-title" id="butterfly-title">Topic-share shift</span>
           <span class="push row"><span class="ctl-label">TOP</span>
             <select class="select" id="butterfly-topn">
               <option value="5">5</option><option value="10" selected>10</option><option value="15">15</option>
@@ -142,7 +151,7 @@
       <div class="card wide">
         <div class="card-head">
           <span class="card-title">All clusters at a glance</span>
-          <span class="card-sub">document frequency by year · click to add to trajectories · double-click for details</span>
+          <span class="card-sub">share of papers by year · click to add to trajectories · double-click for details</span>
           <select class="select push" id="spark-sort">
             <option value="delta-desc" selected>sort: growing first</option>
             <option value="delta-asc">sort: declining first</option>
@@ -168,6 +177,11 @@
     </div>
   </section>
 
+  <!-- =========================== COMPARE VIEW ========================= -->
+  <section class="view" id="view-compare">
+    <div class="compare-wrap" id="compare-body"></div>
+  </section>
+
   <!-- =========================== METHODS VIEW ========================= -->
   <section class="view" id="view-methods">
     <div class="methods-wrap" id="methods-body"></div>
@@ -177,10 +191,11 @@
 
 <!-- BAKE:DATA -->
 <script src="vendor/plotly.min.js"></script>
-<script src="js/data.js"></script>
-<script src="js/map.js"></script>
-<script src="js/trends.js"></script>
-<script src="js/cluster.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js?v=7"></script>
+<script src="js/map.js?v=7"></script>
+<script src="js/trends.js?v=7"></script>
+<script src="js/cluster.js?v=7"></script>
+<script src="js/compare.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>
