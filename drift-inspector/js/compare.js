@@ -338,12 +338,18 @@ window.CompareView = (function () {
     });
     let maxRank = 1;
     top.forEach(c => years.forEach((_, i) => { const r = rankByYear[i].get(c); if (r) maxRank = Math.max(maxRank, r); }));
+    // Headroom so the spline's overshoot isn't clipped at the edges; label only
+    // real ranks (>=1) via tickvals, so the padding never shows a 0/negative rank.
+    const pad = Math.max(1.2, maxRank * 0.08);
+    const step = maxRank <= 12 ? 1 : Math.ceil(maxRank / 10);
+    const rankTicks = [];
+    for (let r = 1; r <= maxRank; r += step) rankTicks.push(r);
     const p = ACC.pal();
     const traces = top.map(c => ({
       type: 'scatter', mode: 'lines+markers', x: years, connectgaps: true,
       y: years.map((_, i) => rankByYear[i].get(c) || null),
       name: clusterLabel(c),
-      line: { width: 2.4, shape: 'spline', dash: gapped ? 'dot' : 'solid',
+      line: { width: 2.4, shape: 'spline', smoothing: 0.6, dash: gapped ? 'dot' : 'solid',
               color: ACC.clusterColor(ACC.state.clusterById.get(c) || { id: c }) },
       marker: { size: 7 },
       hovertemplate: `<b>${clusterLabel(c)}</b><br>%{x}: rank %{y}<extra></extra>`,
@@ -351,10 +357,11 @@ window.CompareView = (function () {
     Plotly.react(div, traces, ACC.plBase({
       height: 380, margin: { l: 40, r: 150, t: 8, b: 30 },
       xaxis: { tickvals: years, tickfont: { size: 11, color: p.fnt }, gridcolor: p.line, fixedrange: true },
-      // explicit reversed range (1 at top) + fixedrange so zoom can't reveal rank 0/negative
+      // reversed range with padding for the spline overshoot; tickvals label only
+      // ranks >=1, and fixedrange stops zoom from ever exposing a 0/negative label
       yaxis: { title: { text: 'rank (1 = most common)', font: { size: 10, color: p.mut } },
-               range: [maxRank + 0.5, 0.5], dtick: 1, tickfont: { size: 10, color: p.fnt },
-               gridcolor: p.line, fixedrange: true },
+               range: [maxRank + pad, 1 - pad], tickmode: 'array', tickvals: rankTicks,
+               tickfont: { size: 10, color: p.fnt }, gridcolor: p.line, fixedrange: true },
       showlegend: true, legend: { font: { size: 9.5, color: p.ink2 }, x: 1.02, y: 1, xanchor: 'left' },
       hovermode: 'closest',
     }), ACC.plConfig({ displayModeBar: false }));
