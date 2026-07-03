@@ -410,10 +410,14 @@ window.CompareView = (function () {
         line: { width: 2.4, shape: 'spline', color }, marker: { size: 7 },
         hovertemplate: `<b>${clusterLabel(c)}</b><br>%{x}: rank %{y}<br><span style="font-size:10px">click for its papers →</span><extra></extra>`,
       });
-      if (g.solidX.length) traces.push({ type: 'scatter', mode: 'lines', x: g.solidX, y: g.solidY,
-        connectgaps: false, line: { width: 2.4, shape: 'spline', color }, hoverinfo: 'skip', showlegend: false });
-      if (g.dashX.length) traces.push({ type: 'scatter', mode: 'lines', x: g.dashX, y: g.dashY,
-        connectgaps: false, line: { width: 2.4, shape: 'spline', dash: 'dot', color }, hoverinfo: 'skip', showlegend: false });
+      const bridge = (bx, by, dash) => traces.push({
+        type: 'scatter', mode: 'lines', x: bx, y: by, connectgaps: false,
+        customdata: bx.map(() => c),
+        line: { width: 2.4, shape: 'spline', dash, color }, showlegend: false,
+        hovertemplate: `<b>${clusterLabel(c)}</b><br>%{x}: rank %{y}<extra></extra>`,
+      });
+      if (g.solidX.length) bridge(g.solidX, g.solidY, undefined);
+      if (g.dashX.length) bridge(g.dashX, g.dashY, 'dot');
     });
     Plotly.react(div, traces, ACC.plBase({
       height: 380, margin: { l: 40, r: 150, t: 8, b: 30 },
@@ -446,46 +450,57 @@ window.CompareView = (function () {
     const prof = profFull.slice(firstC, lastC + 1);
     const covered = coveredFull.slice(firstC, lastC + 1);
     const perYear = prof.map(pp => pp.byCluster);
-    const interiorGap = covered.includes(false);   // an uncovered year between covered ones
     const totals = new Map();
     perYear.forEach(mp => mp.forEach((v, c) => totals.set(c, (totals.get(c) || 0) + v)));
     if (!totals.size) { div.innerHTML = '<div class="cmp-empty">No claims in this subsample.</div>'; return; }
     const top = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, TOP_DRIFT).map(e => e[0]);
     const p = ACC.pal();
-    // Can't stack a filled area across a real interior gap → fall back to lines,
-    // solid between covered years and dashed only across the missing ones.
-    const stacked = metric === 'mix' && !interiorGap;
+    const color = c => ACC.clusterColor(ACC.state.clusterById.get(c) || { id: c });
     const traces = [];
-    top.forEach(c => {
-      const color = ACC.clusterColor(ACC.state.clusterById.get(c) || { id: c });
-      const yy = years.map((_, i) => prof[i].nPapers ? +(perYear[i].get(c) || 0).toFixed(2) : null);
-      if (stacked) {
-        traces.push({
-          type: 'scatter', mode: 'lines', x: years, y: yy, connectgaps: true,
-          name: clusterLabel(c), text: clusterLabel(c), customdata: years.map(() => c),
-          hoveron: 'points+fills', line: { width: 0.5, color }, stackgroup: 'one',
-          hovertemplate: `<b>%{text}</b><br>%{x}: %{y:.1f}%<extra></extra>`,
-        });
-      } else {
+    if (metric === 'mix') {
+      // topic mix is additive → a real filled stacked area. Plot only the covered
+      // years so the fill stays continuous (it bridges any gap year linearly) and
+      // never degrades into an unreadable pile of lines; hover the band for names.
+      const ci = years.map((_, i) => i).filter(i => covered[i]);
+      const cyears = ci.map(i => years[i]);
+      top.forEach(c => traces.push({
+        type: 'scatter', mode: 'lines', x: cyears, y: ci.map(i => +(perYear[i].get(c) || 0).toFixed(2)),
+        connectgaps: true, name: clusterLabel(c), text: clusterLabel(c), customdata: cyears.map(() => c),
+        hoveron: 'points+fills', line: { width: 0.5, color: color(c) }, stackgroup: 'one',
+        hovertemplate: `<b>%{text}</b><br>%{x}: %{y:.1f}%<extra></extra>`,
+      }));
+    } else {
+      // paper share is NOT additive (a paper can sit in several clusters) → stacking
+      // would mislead. Readable lines+markers, dashed only across years the cohort
+      // didn't run, and every segment carries its name so hover always labels it.
+      top.forEach(c => {
+        const col = color(c);
+        const yy = years.map((_, i) => prof[i].nPapers ? +(perYear[i].get(c) || 0).toFixed(2) : null);
         const g = ACC.gapBridge(years, yy, covered);
         traces.push({
-          type: 'scatter', mode: 'lines', x: years, y: yy, connectgaps: false,
-          name: clusterLabel(c), text: clusterLabel(c), customdata: years.map(() => c),
-          line: { width: 2.2, color },
-          hovertemplate: `<b>%{text}</b><br>%{x}: %{y:.1f}%<extra></extra>`,
+          type: 'scatter', mode: 'lines+markers', x: years, y: yy, connectgaps: false,
+          name: clusterLabel(c), customdata: years.map(() => c),
+          line: { width: 2.2, color: col }, marker: { size: 5, color: col },
+          hovertemplate: `<b>${clusterLabel(c)}</b><br>%{x}: %{y:.1f}%<extra></extra>`,
         });
-        if (g.solidX.length) traces.push({ type: 'scatter', mode: 'lines', x: g.solidX, y: g.solidY,
-          connectgaps: false, line: { width: 2.2, color }, hoverinfo: 'skip', showlegend: false });
-        if (g.dashX.length) traces.push({ type: 'scatter', mode: 'lines', x: g.dashX, y: g.dashY,
-          connectgaps: false, line: { width: 2.2, dash: 'dot', color }, hoverinfo: 'skip', showlegend: false });
-      }
-    });
+        const bridge = (bx, by, dash) => traces.push({
+          type: 'scatter', mode: 'lines', x: bx, y: by, connectgaps: false,
+          customdata: bx.map(() => c), line: { width: 2.2, dash, color: col },
+          showlegend: false, hoverinfo: 'skip',   // visual connector; the base line carries hover
+        });
+        if (g.solidX.length) bridge(g.solidX, g.solidY, undefined);
+        if (g.dashX.length) bridge(g.dashX, g.dashY, 'dot');
+      });
+    }
     Plotly.react(div, traces, ACC.plBase({
       height: 360, margin: { l: 46, r: 10, t: 8, b: 34 },
       xaxis: { tickvals: years, tickfont: { size: 11, color: p.fnt }, gridcolor: p.line },
       yaxis: { title: { text: metricWord(), font: { size: 11, color: p.mut } }, rangemode: 'tozero', tickfont: { size: 10, color: p.fnt }, gridcolor: p.line },
       legend: { orientation: 'h', y: -0.14, font: { size: 10, color: p.ink2 } },
       hovermode: 'closest',
+      // paper-share lines aren't stacked, so make every line hoverable anywhere
+      // (not just at vertices); the filled topic-mix relies on fill hover instead.
+      hoverdistance: metric === 'mix' ? 20 : -1,
     }), ACC.plConfig({ displayModeBar: false }));
     div.on('plotly_click', ev => {
       const c = ev.points && ev.points[0] && ev.points[0].customdata;
