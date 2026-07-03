@@ -10,7 +10,7 @@ window.ClusterView = (function () {
   let currentCid = null;
   let currentYear = 'ALL';
   let claimsQuery = '';
-  let claimsOrder = 'new';     // 'new' (newest first) | 'random'
+  let claimsOrder = 'random';  // 'random' (default, unbiased sample) | 'new' (newest first)
   let shuffleSeed = 1;
   let claimsShown = 12;
   const CLAIMS_PAGE = 12;
@@ -48,7 +48,8 @@ window.ClusterView = (function () {
     currentCid = cid;
     currentYear = 'ALL';
     claimsQuery = '';
-    claimsOrder = 'new';
+    claimsOrder = 'random';
+    shuffleSeed = (Math.random() * 2 ** 32) >>> 0;   // fresh unbiased order on each open
     claimsShown = CLAIMS_PAGE;
     renderList();
     const c = ACC.state.clusterById.get(cid);
@@ -116,6 +117,8 @@ window.ClusterView = (function () {
     document.getElementById('detail-export').addEventListener('click', () => exportCsv(c));
     const orderSel = document.getElementById('claims-order');
     const reshuffle = document.getElementById('claims-reshuffle');
+    orderSel.value = claimsOrder;
+    reshuffle.hidden = claimsOrder !== 'random';
     orderSel.addEventListener('change', () => {
       claimsOrder = orderSel.value;
       reshuffle.hidden = claimsOrder !== 'random';
@@ -181,16 +184,26 @@ window.ClusterView = (function () {
       `<span class="byconf-v" style="color:${r.color}">${ACC.escapeHtml(r.venue)}</span>` +
       `<b>${(r.nClaims / totalClaims * 100).toFixed(0)}%</b> of cluster · ` +
       `<b>${r.overallDf.toFixed(1)}%</b> of its papers · ${r.nClaims.toLocaleString()} claims</span>`).join('');
-    // per-venue prevalence over years (share of each venue's papers in this cluster)
-    const traces = rows.map(r => ({
-      type: 'scatter', mode: 'lines+markers', x: years, y: r.df, name: r.venue,
-      // non-annual venues (year gaps) get a dashed connector across the missing years
-      connectgaps: true,
-      line: { width: 2.4, dash: r.df.some(v => v == null) ? 'dot' : 'solid', color: r.color },
-      marker: { size: 6, color: r.color },
-      customdata: r.papersByYear,
-      hovertemplate: `<b>${ACC.escapeHtml(r.venue)}</b><br>%{x}: %{y:.1f}% of its papers · %{customdata} here<extra></extra>`,
-    }));
+    // per-venue prevalence over years (share of each venue's papers in this cluster).
+    // Solid between consecutive covered years; ONLY the connectors that bridge
+    // years the venue didn't run (df === null) are dashed — not the whole line.
+    const traces = [];
+    rows.forEach(r => {
+      const covered = r.df.map(v => v != null);
+      const g = ACC.gapBridge(years, r.df, covered);
+      traces.push({
+        type: 'scatter', mode: 'lines+markers', x: years, y: r.df, name: r.venue,
+        connectgaps: false,
+        line: { width: 2.4, color: r.color },
+        marker: { size: 6, color: r.color },
+        customdata: r.papersByYear,
+        hovertemplate: `<b>${ACC.escapeHtml(r.venue)}</b><br>%{x}: %{y:.1f}% of its papers · %{customdata} here<extra></extra>`,
+      });
+      if (g.dashX.length) traces.push({
+        type: 'scatter', mode: 'lines', x: g.dashX, y: g.dashY, connectgaps: false,
+        line: { width: 2.4, dash: 'dot', color: r.color }, hoverinfo: 'skip', showlegend: false,
+      });
+    });
     Plotly.react(document.getElementById('detail-byconf'), traces, ACC.plBase({
       height: 250, margin: { l: 44, r: 10, t: 8, b: 28 },
       xaxis: { tickvals: years, tickfont: { size: 11, color: p.fnt }, gridcolor: p.line },

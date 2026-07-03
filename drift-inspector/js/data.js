@@ -169,6 +169,29 @@ window.ACC = (function () {
   };
   const paperUrl = i => state.data.meta.anthologyBase + state.data.papers[i];
 
+  /** Split a year series into the connectors that bridge missing years, so a
+      line can be drawn SOLID between consecutive present years and DASHED only
+      across gaps — instead of dashing a whole line just because one year is
+      absent. `y` is null at years the series has no point; optional `covered[i]`
+      marks whether year i is covered by the source at all (a real gap) vs merely
+      lacking a point (bridge solid then). Draw the base line with
+      connectgaps:false, then overlay the returned solid/dashed segment lists. */
+  function gapBridge(x, y, covered) {
+    const dashX = [], dashY = [], solidX = [], solidY = [];
+    let prev = -1;
+    for (let i = 0; i < y.length; i++) {
+      if (y[i] == null) continue;
+      if (prev >= 0 && i > prev + 1) {
+        let uncovered = false;
+        for (let k = prev + 1; k < i && !uncovered; k++) if (!covered || !covered[k]) uncovered = true;
+        const tx = uncovered ? dashX : solidX, ty = uncovered ? dashY : solidY;
+        tx.push(x[prev], x[i], null); ty.push(y[prev], y[i], null);
+      }
+      prev = i;
+    }
+    return { dashX, dashY, solidX, solidY };
+  }
+
   /* ------------------------- per-point tooltips ------------------------- */
   function tooltips() {
     const key = state.theme;
@@ -242,7 +265,7 @@ window.ACC = (function () {
   return {
     state, load, on, emit, tooltips,
     oklchHex, pal, clusterColor, driftColor,
-    fmtPp, fmtPct, fmtRel, trendArrow, escapeHtml, wrapHtml, paperUrl,
+    fmtPp, fmtPct, fmtRel, trendArrow, escapeHtml, wrapHtml, paperUrl, gapBridge,
     initTheme, toggleTheme, plBase, plConfig,
   };
 })();
