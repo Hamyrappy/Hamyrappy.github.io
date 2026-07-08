@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=block" rel="stylesheet">
+  <style>
+    html,body{margin:0;padding:0;height:100%;background:#101214;}
+    *{box-sizing:border-box;}
+    ::selection{background:#2A4A3A;color:#E7EAE8;}
+    a{color:#4CC38A;text-decoration:none;}
+    a:hover{color:#6BD4A1;text-decoration:underline;}
+    ::-webkit-scrollbar{width:10px;height:10px;}
+    ::-webkit-scrollbar-thumb{background:#2A2E32;border-radius:8px;border:3px solid #101214;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    input::placeholder{color:#5C645E;}
+    input:focus{outline:none;}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    @keyframes fadein{from{opacity:0}to{opacity:1}}
+    @keyframes slidein{from{opacity:.3;transform:translateX(36px)}to{opacity:1;transform:none}}
+    @keyframes toastin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+    @keyframes feedin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+    @keyframes typebounce{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-3px);opacity:1}}
+  </style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;height:100vh;overflow:hidden;font-family:'Inter Tight',system-ui,sans-serif;color:#E7EAE8;background:#101214;">
+
+  <!-- ВЕРХНЯЯ НАВИГАЦИЯ -->
+  <header style="height:54px;flex:none;display:flex;align-items:center;gap:18px;padding:0 20px;border-bottom:1px solid rgba(240,244,242,.07);background:rgba(16,18,20,.92);backdrop-filter:blur(8px);z-index:30;">
+    <div style="display:flex;align-items:center;gap:10px;flex:none;">
+      <div style="width:26px;height:26px;border-radius:7px;background:#4CC38A;position:relative;flex:none;">
+        <div style="position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:2px;background:#101214;"></div>
+      </div>
+      <div style="font-size:15px;font-weight:800;letter-spacing:-.01em;">Марк</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;border:1px solid rgba(240,244,242,.1);border-radius:6px;padding:2px 7px;">LOOMA · WB</div>
+    </div>
+    <nav style="display:flex;gap:2px;flex:1;">
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="5">
+        <div onClick="{{ item.go }}" style="{{ item.st }}" style-hover="color:#E7EAE8">
+          {{ item.label }}
+          <span style="{{ item.badgeSt }}">{{ item.badge }}</span>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;flex:none;">
+      <div style="display:flex;align-items:center;gap:6px;border:1px solid rgba(240,244,242,.1);border-radius:8px;padding:5px 10px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#4CC38A;animation:blink 2.4s infinite;"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9AA39D;">WB · 07:42</span>
+      </div>
+      <div onClick="{{ openChat }}" style="display:flex;align-items:center;gap:7px;background:#1D2A23;border:1px solid rgba(76,195,138,.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:650;color:#4CC38A;cursor:pointer;" style-hover="background:#22352B">
+        <span style="font-family:'Material Symbols Rounded';font-size:15px;">forum</span>Спросить
+      </div>
+      <div style="width:28px;height:28px;border-radius:50%;background:#24282B;color:#9AA39D;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;">ЕК</div>
+    </div>
+  </header>
+
+  <main style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;">
+
+    <!-- ============ ОБЗОР ============ -->
+    <sc-if value="{{ isOv }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="Обзор" style="flex:1;display:grid;grid-template-columns:minmax(220px,296px) minmax(0,1fr) minmax(240px,316px);gap:0;min-height:0;animation:fadein .25s;">
+
+        <!-- Лента Марка -->
+        <div style="border-right:1px solid rgba(240,244,242,.07);display:flex;flex-direction:column;min-height:0;">
+          <div style="flex:none;display:flex;align-items:center;gap:8px;padding:14px 16px 10px;">
+            <span style="font-size:12.5px;font-weight:700;color:#9AA39D;">Марк работает</span>
+            <div style="width:6px;height:6px;border-radius:50%;background:#4CC38A;animation:blink 1.8s infinite;"></div>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;">{{ feedMeta }}</span>
+          </div>
+          <div style="flex:1;overflow-y:auto;min-height:0;padding:0 12px 16px;">
+            <sc-for list="{{ feed }}" as="f" hint-placeholder-count="8">
+              <div style="{{ f.st }}">
+                <div style="display:flex;gap:9px;">
+                  <span style="font-family:'Material Symbols Rounded';font-size:15px;color:{{ f.iconColor }};padding-top:1px;flex:none;">{{ f.icon }}</span>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:11.5px;line-height:1.45;color:#C6CCC8;">{{ f.txt }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;margin-top:3px;">{{ f.t }}</div>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Центр: решения -->
+        <div style="overflow-y:auto;min-height:0;padding:18px 22px 28px;">
+          <div style="display:flex;align-items:baseline;gap:12px;">
+            <span style="font-size:18px;font-weight:800;letter-spacing:-.01em;">Требуют вашего решения</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9AA39D;">{{ ovMeta }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+            <sc-for list="{{ ovCards }}" as="c" hint-placeholder-count="3">
+              <div style="{{ c.st }}">
+                <div style="display:flex;align-items:flex-start;gap:12px;">
+                  <div style="{{ c.stripeSt }}"></div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;">{{ c.num }}</span>
+                      <span style="{{ c.urgSt }}">{{ c.urg }}</span>
+                      <span style="{{ c.stateSt }}">{{ c.stateChip }}</span>
+                    </div>
+                    <div style="font-size:14.5px;font-weight:700;line-height:1.35;margin-top:6px;">{{ c.title }}</div>
+                    <div style="font-size:12px;line-height:1.5;color:#9AA39D;margin-top:5px;">{{ c.why }}</div>
+                  </div>
+                  <div style="text-align:right;flex:none;">
+                    <div style="{{ c.effSt }}">{{ c.eff }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;margin-top:2px;">{{ c.effLabel }}</div>
+                  </div>
+                </div>
+                <sc-if value="{{ c.expanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin:12px 0 0 14px;border-top:1px solid rgba(240,244,242,.07);padding-top:12px;">
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                      <sc-for list="{{ c.steps }}" as="s" hint-placeholder-count="3">
+                        <div style="display:flex;gap:10px;font-size:12px;color:#C6CCC8;line-height:1.45;">
+                          <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4CC38A;font-weight:700;">{{ s.n }}</span>{{ s.t }}
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="background:#101214;border:1px solid rgba(240,244,242,.07);border-radius:9px;padding:10px 13px;margin-top:10px;">
+                      <sc-for list="{{ c.calc }}" as="l" hint-placeholder-count="3">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.65;color:#8FB89F;">{{ l.t }}</div>
+                      </sc-for>
+                      <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;margin-top:7px;">{{ c.source }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+                <div style="display:flex;align-items:center;gap:8px;margin:12px 0 0 14px;flex-wrap:wrap;">
+                  <sc-if value="{{ c.showBtns }}" hint-placeholder-val="{{ true }}">
+                    <div onClick="{{ c.run }}" style="background:#4CC38A;color:#0C1710;border-radius:8px;padding:8px 15px;font-size:12.5px;font-weight:750;cursor:pointer;display:flex;align-items:center;gap:6px;" style-hover="background:#5FD09B">
+                      <span style="font-family:'Material Symbols Rounded';font-size:15px;">play_arrow</span>Выполнить
+                    </div>
+                    <div onClick="{{ c.toggle }}" style="border:1px solid rgba(240,244,242,.12);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:650;color:#9AA39D;cursor:pointer;" style-hover="color:#E7EAE8;border-color:rgba(240,244,242,.25)">{{ c.detailsLabel }}</div>
+                    <div onClick="{{ c.reject }}" style="border:1px solid rgba(224,112,90,.25);border-radius:8px;padding:8px 13px;font-size:12px;font-weight:650;color:#E0705A;cursor:pointer;" style-hover="background:rgba(224,112,90,.08)">Отклонить</div>
+                    <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;white-space:nowrap;">{{ c.exec }}</span>
+                  </sc-if>
+                  <sc-if value="{{ c.showStatus }}" hint-placeholder-val="{{ false }}">
+                    <div style="{{ c.statusSt }}">
+                      <span style="font-family:'Material Symbols Rounded';font-size:15px;">{{ c.statusIcon }}</span>{{ c.statusText }}
+                    </div>
+                    <span onClick="{{ c.undo }}" style="font-size:11.5px;font-weight:650;color:#4CC38A;cursor:pointer;">{{ c.undoLabel }}</span>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- Безопасные -->
+          <div style="{{ safeRowSt }}">
+            <span style="font-family:'Material Symbols Rounded';font-size:16px;color:#4CC38A;">verified</span>
+            <span style="font-size:12.5px;color:#C6CCC8;">{{ safeText }}</span>
+            <div onClick="{{ safeRun }}" style="{{ safeBtnSt }}" style-hover="background:#22352B">{{ safeBtnLabel }}</div>
+          </div>
+
+          <!-- Остальная очередь -->
+          <div onClick="{{ restToggle }}" style="display:flex;align-items:center;gap:8px;margin-top:16px;cursor:pointer;color:#9AA39D;font-size:12px;font-weight:650;" style-hover="color:#E7EAE8">
+            <span style="font-family:'Material Symbols Rounded';font-size:17px;">{{ restIcon }}</span>
+            Вся очередь недели · {{ restCount }}
+          </div>
+          <sc-if value="{{ restOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">
+              <sc-for list="{{ restRows }}" as="r" hint-placeholder-count="4">
+                <div onClick="{{ r.go }}" style="{{ r.st }}" style-hover="border-color:rgba(240,244,242,.2)">
+                  <span style="{{ r.dotSt }}"></span>
+                  <span style="font-size:12.5px;font-weight:600;flex:1;">{{ r.title }}</span>
+                  <span style="{{ r.effSt }}">{{ r.eff }}</span>
+                  <span style="{{ r.stateSt }}">{{ r.state }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- Сигналы -->
+        <div style="border-left:1px solid rgba(240,244,242,.07);overflow-y:auto;min-height:0;padding:14px 16px 24px;">
+          <div style="font-size:12.5px;font-weight:700;color:#9AA39D;padding-bottom:10px;">Сигналы магазина</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ signals }}" as="s" hint-placeholder-count="6">
+              <div onClick="{{ s.go }}" style="{{ s.st }}" style-hover="border-color:rgba(240,244,242,.22)">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:10.5px;color:#9AA39D;">{{ s.k }}</div>
+                  <div style="display:flex;align-items:baseline;gap:7px;margin-top:3px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:16.5px;font-weight:700;letter-spacing:-.01em;">{{ s.v }}</span>
+                    <span style="{{ s.dSt }}">{{ s.d }}</span>
+                  </div>
+                  <div style="font-size:10px;color:#5C645E;margin-top:2px;">{{ s.sub }}</div>
+                </div>
+                <div style="flex:none;">{{ s.spark }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:14px;background:#17191C;border:1px solid rgba(240,244,242,.07);border-radius:11px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:#9AA39D;">
+              <span style="font-family:'Material Symbols Rounded';font-size:14px;color:#4CC38A;">flag</span>План 90 дней
+            </div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px;">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;">12,4 / 30,0 млн</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#4CC38A;font-weight:700;">+8,7% к плану</span>
+            </div>
+            <div style="position:relative;height:6px;background:#24282B;border-radius:3px;margin-top:8px;">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:41.3%;background:#4CC38A;border-radius:3px;"></div>
+              <div style="position:absolute;left:41.3%;top:-2px;bottom:-2px;width:2px;background:#E7EAE8;border-radius:1px;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:#5C645E;margin-top:4px;">
+              <span>день 38/92</span><span>прогноз 32,6 млн</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ АВТОНОМИЯ ============ -->
+    <sc-if value="{{ isAuto }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Автономия" style="flex:1;overflow-y:auto;min-height:0;">
+        <div style="padding:18px 22px 32px;max-width:1240px;margin:0 auto;animation:rise .25s ease-out;">
+          <div style="display:flex;align-items:center;gap:10px;background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:11px;padding:11px 15px;">
+            <span style="font-family:'Material Symbols Rounded';font-size:17px;color:#4CC38A;">smart_toy</span>
+            <span style="font-size:12.5px;color:#C6CCC8;">За 30 дней Марк выполнил <b style="font-family:'JetBrains Mono',monospace;">176 операций</b>. Всё, что двигает деньги, шло через ваше подтверждение.</span>
+            <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:#4CC38A;font-weight:700;">{{ apSaved }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 312px;gap:14px;margin-top:14px;align-items:start;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ apDomains }}" as="d" hint-placeholder-count="5">
+                <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;overflow:hidden;">
+                  <div style="display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid rgba(240,244,242,.06);">
+                    <span style="font-family:'Material Symbols Rounded';font-size:17px;color:#4CC38A;">{{ d.icon }}</span>
+                    <span style="font-size:13.5px;font-weight:750;">{{ d.domain }}</span>
+                    <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;">{{ d.runs }}</span>
+                  </div>
+                  <sc-for list="{{ d.tasks }}" as="t" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 15px;border-top:1px solid rgba(240,244,242,.045);">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:12px;font-weight:600;color:#E7EAE8;">{{ t.name }}</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;margin-top:3px;">{{ t.meta }}</div>
+                      </div>
+                      <sc-if value="{{ t.locked }}" hint-placeholder-val="{{ false }}">
+                        <span title="Защитное правило — не отключается" style="display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#4CC38A;background:rgba(76,195,138,.13);border-radius:6px;padding:5px 9px;">
+                          <span style="font-family:'Material Symbols Rounded';font-size:12px;">lock</span>всегда авто
+                        </span>
+                      </sc-if>
+                      <sc-if value="{{ t.free }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;background:#101214;border:1px solid rgba(240,244,242,.07);border-radius:8px;padding:2px;gap:1px;flex:none;">
+                          <sc-for list="{{ t.modes }}" as="m" hint-placeholder-count="3">
+                            <div onClick="{{ m.go }}" style="{{ m.st }}">{{ m.label }}</div>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;padding:13px 15px;">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:750;">
+                  <span style="font-family:'Material Symbols Rounded';font-size:15px;color:#4CC38A;">shield</span>Границы безопасности
+                </div>
+                <div style="display:flex;flex-direction:column;margin-top:5px;">
+                  <sc-for list="{{ apSafety }}" as="s" hint-placeholder-count="5">
+                    <div style="display:flex;gap:9px;padding:8px 0;border-top:1px solid rgba(240,244,242,.05);font-size:11.5px;line-height:1.45;color:#C6CCC8;">
+                      <span style="font-family:'Material Symbols Rounded';font-size:13px;color:#4CC38A;padding-top:1px;">check</span>{{ s.t }}
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;padding:13px 15px;">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:750;">
+                  <span style="font-family:'Material Symbols Rounded';font-size:15px;color:#4CC38A;">schedule</span>Экономия времени
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;margin-top:8px;">{{ apSavedBig }}</div>
+                <div style="display:flex;flex-direction:column;gap:5px;margin-top:8px;">
+                  <sc-for list="{{ apSavedRows }}" as="r" hint-placeholder-count="5">
+                    <div style="display:flex;font-size:11px;gap:8px;align-items:center;">
+                      <span style="color:#9AA39D;">{{ r.k }}</span>
+                      <span style="flex:1;border-bottom:1px dotted rgba(240,244,242,.12);"></span>
+                      <span style="font-family:'JetBrains Mono',monospace;font-weight:600;">{{ r.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div onClick="{{ apPause }}" style="border:1px solid rgba(224,112,90,.3);border-radius:10px;padding:10px;text-align:center;font-size:12px;font-weight:700;color:#E0705A;cursor:pointer;" style-hover="background:rgba(224,112,90,.08)">Приостановить автодействия</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ ДЕНЬГИ ============ -->
+    <sc-if value="{{ isMoney }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Деньги" style="flex:1;overflow-y:auto;min-height:0;">
+        <div style="padding:18px 22px 32px;max-width:1240px;margin:0 auto;animation:rise .25s ease-out;">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <sc-for list="{{ moKpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;padding:13px 15px;">
+                <div style="font-size:10.5px;color:#9AA39D;">{{ k.k }}</div>
+                <div style="{{ k.vSt }}">{{ k.v }}</div>
+                <div style="font-size:10px;color:#5C645E;margin-top:2px;">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:12px;margin-top:12px;align-items:start;">
+            <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;padding:14px 16px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:13px;font-weight:750;">Структура расходов</span>
+                <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;">30 дней</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <sc-for list="{{ moExp }}" as="r" hint-placeholder-count="7">
+                  <div style="display:flex;align-items:center;gap:10px;font-size:11.5px;">
+                    <span style="width:92px;flex:none;color:#9AA39D;">{{ r.k }}</span>
+                    <div style="flex:1;height:14px;background:#101214;border-radius:5px;overflow:hidden;">
+                      <div style="{{ r.barSt }}"></div>
+                    </div>
+                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;width:78px;text-align:right;flex:none;">{{ r.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:12px;border-top:1px solid rgba(240,244,242,.07);padding-top:10px;font-size:12px;">
+                <span style="color:#9AA39D;">Итого расходов</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-weight:700;">{{ moExpTotal }}</span>
+              </div>
+            </div>
+            <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;padding:14px 16px;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div>
+                  <div style="font-size:11px;font-weight:700;color:#4CC38A;">Приносят больше всех</div>
+                  <div style="display:flex;flex-direction:column;gap:7px;margin-top:9px;">
+                    <sc-for list="{{ moTop }}" as="p" hint-placeholder-count="5">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="{{ p.tileSt }}">{{ p.mono }}</div>
+                        <div style="flex:1;min-width:0;">
+                          <div style="font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</div>
+                          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5C645E;">{{ p.margin }}</div>
+                        </div>
+                        <span style="{{ p.vSt }}">{{ p.v }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:11px;font-weight:700;color:#E0705A;">Тянут вниз</div>
+                  <div style="display:flex;flex-direction:column;gap:7px;margin-top:9px;">
+                    <sc-for list="{{ moAnti }}" as="p" hint-placeholder-count="5">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="{{ p.tileSt }}">{{ p.mono }}</div>
+                        <div style="flex:1;min-width:0;">
+                          <div style="font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</div>
+                          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5C645E;">{{ p.margin }}</div>
+                        </div>
+                        <span style="{{ p.vSt }}">{{ p.v }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:12px;border-top:1px solid rgba(240,244,242,.07);padding-top:10px;font-size:10.5px;color:#5C645E;line-height:1.5;">Убыточные позиции уже в очереди решений на Обзоре — здесь только справка.</div>
+            </div>
+          </div>
+          <div onClick="{{ moTableToggle }}" style="display:flex;align-items:center;gap:8px;margin-top:14px;cursor:pointer;color:#9AA39D;font-size:12px;font-weight:650;" style-hover="color:#E7EAE8">
+            <span style="font-family:'Material Symbols Rounded';font-size:17px;">{{ moTableIcon }}</span>Полная таблица · 15 SKU
+          </div>
+          <sc-if value="{{ moTableOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;margin-top:10px;overflow:hidden;">
+              <div style="display:grid;grid-template-columns:1.7fr .6fr .6fr .8fr .8fr .6fr 1fr;gap:8px;padding:9px 16px;background:#141619;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5C645E;">
+                <span>Товар</span><span style="text-align:right;">Заказы</span><span style="text-align:right;">Выкуп</span><span style="text-align:right;">Выручка</span><span style="text-align:right;">Прибыль</span><span style="text-align:right;">Маржа</span><span style="text-align:right;">Цена / безопасная</span>
+              </div>
+              <sc-for list="{{ moRows }}" as="r" hint-placeholder-count="8">
+                <div style="display:grid;grid-template-columns:1.7fr .6fr .6fr .8fr .8fr .6fr 1fr;gap:8px;padding:8px 16px;border-top:1px solid rgba(240,244,242,.045);align-items:center;">
+                  <span style="font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ r.name }}</span>
+                  <span style="{{ r.numSt }}">{{ r.orders }}</span>
+                  <span style="{{ r.numSt }}">{{ r.buyout }}</span>
+                  <span style="{{ r.numSt }}">{{ r.rev }}</span>
+                  <span style="{{ r.profitSt }}">{{ r.profit }}</span>
+                  <span style="{{ r.marginSt }}">{{ r.margin }}</span>
+                  <span style="{{ r.priceSt }}">{{ r.price }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ ВИТРИНА ============ -->
+    <sc-if value="{{ isShop }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Витрина" style="flex:1;overflow-y:auto;min-height:0;">
+        <div style="padding:18px 22px 32px;max-width:1360px;margin:0 auto;animation:rise .25s ease-out;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:15px;font-weight:800;">Витрина · 15 SKU</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#5C645E;">три индикатора: цена · склад · реклама. Клик — экономика товара</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:10px;margin-top:14px;">
+            <sc-for list="{{ shopCards }}" as="p" hint-placeholder-count="15">
+              <div onClick="{{ p.go }}" style="{{ p.st }}" style-hover="border-color:rgba(240,244,242,.22)">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="{{ p.tileSt }}">{{ p.mono }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:12px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.name }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;">{{ p.nm }}</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px;">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:14.5px;font-weight:700;">{{ p.price }}</span>
+                  <span style="{{ p.marginSt }}">{{ p.margin }}</span>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:10px;border-top:1px solid rgba(240,244,242,.06);padding-top:9px;">
+                  <sc-for list="{{ p.dots }}" as="d" hint-placeholder-count="3">
+                    <div title="{{ d.title }}" style="display:flex;align-items:center;gap:5px;flex:1;">
+                      <span style="{{ d.dotSt }}"></span>
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#9AA39D;">{{ d.label }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ============ ЖУРНАЛ ============ -->
+    <sc-if value="{{ isJournal }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Журнал" style="flex:1;overflow-y:auto;min-height:0;">
+        <div style="padding:18px 22px 32px;max-width:920px;margin:0 auto;animation:rise .25s ease-out;">
+          <div style="display:flex;gap:6px;">
+            <sc-for list="{{ jFilters }}" as="f" hint-placeholder-count="3">
+              <div onClick="{{ f.go }}" style="{{ f.st }}" style-hover="color:#E7EAE8">{{ f.label }}</div>
+            </sc-for>
+            <div style="flex:1;"></div>
+            <div onClick="{{ jExport }}" style="display:flex;align-items:center;gap:6px;border:1px solid rgba(240,244,242,.12);border-radius:8px;padding:6px 12px;font-size:11.5px;font-weight:650;color:#9AA39D;cursor:pointer;" style-hover="color:#E7EAE8">
+              <span style="font-family:'Material Symbols Rounded';font-size:14px;">download</span>Экспорт аудита
+            </div>
+          </div>
+          <sc-for list="{{ jDays }}" as="day" hint-placeholder-count="3">
+            <div style="margin-top:16px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C645E;padding-bottom:8px;">{{ day.day }}</div>
+              <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;overflow:hidden;">
+                <sc-for list="{{ day.items }}" as="it" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:11px;padding:10px 15px;border-top:1px solid rgba(240,244,242,.045);">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#5C645E;width:62px;flex:none;">{{ it.t }}</span>
+                    <span style="{{ it.whoSt }}">{{ it.who }}</span>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:12px;font-weight:600;color:#E7EAE8;">{{ it.what }}</div>
+                      <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;margin-top:2px;">→ {{ it.res }}</div>
+                    </div>
+                    <span style="{{ it.factSt }}">{{ it.fact }}</span>
+                    <span style="{{ it.dotSt }}"></span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- @screens -->
+  </main>
+
+  <!-- @overlays -->
+
+  <!-- ДРОВЕР ТОВАРА -->
+  <sc-if value="{{ shOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ shClose }}" style="position:fixed;inset:0;background:rgba(6,8,9,.55);backdrop-filter:blur(3px);z-index:90;animation:fadein .15s;">
+      <div onClick="{{ stopProp }}" style="position:absolute;top:0;right:0;bottom:0;width:min(540px,94vw);background:#141619;border-left:1px solid rgba(240,244,242,.09);animation:slidein .25s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(240,244,242,.07);">
+          <div style="{{ shTileSt }}">{{ shMono }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:15px;font-weight:750;">{{ shName }}</span>
+              <span style="{{ shFlagSt }}">{{ shFlag }}</span>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C645E;margin-top:2px;">{{ shSub }}</div>
+          </div>
+          <div onClick="{{ shClose }}" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#9AA39D;" style-hover="background:#1D2125">
+            <span style="font-family:'Material Symbols Rounded';font-size:19px;">close</span>
+          </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:18px 20px 24px;">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+            <sc-for list="{{ shKpis }}" as="k" hint-placeholder-count="4">
+              <div style="background:#17191C;border:1px solid rgba(240,244,242,.07);border-radius:10px;padding:10px 12px;">
+                <div style="font-size:9.5px;color:#5C645E;">{{ k.k }}</div>
+                <div style="{{ k.vSt }}">{{ k.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C645E;margin:18px 0 8px;">Куда уходит цена · на 1 продажу</div>
+          <div style="display:flex;height:26px;border-radius:8px;overflow:hidden;border:1px solid rgba(240,244,242,.07);">
+            <sc-for list="{{ shWater }}" as="w" hint-placeholder-count="6">
+              <div title="{{ w.title }}" style="{{ w.st }}"></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:11px;">
+            <sc-for list="{{ shLegend }}" as="w" hint-placeholder-count="7">
+              <div style="display:flex;align-items:center;gap:9px;font-size:11.5px;">
+                <div style="{{ w.dotSt }}"></div>
+                <span style="color:#C6CCC8;">{{ w.k }}</span>
+                <span style="flex:1;border-bottom:1px dotted rgba(240,244,242,.12);"></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-weight:650;">{{ w.v }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5C645E;margin:18px 0 8px;">Решения по товару</div>
+          <sc-if value="{{ shHasDecs }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <sc-for list="{{ shDecs }}" as="d" hint-placeholder-count="2">
+                <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:10px;padding:11px 13px;">
+                  <div style="font-size:12px;font-weight:650;line-height:1.35;">{{ d.title }}</div>
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+                    <span style="{{ d.effSt }}">{{ d.eff }}</span>
+                    <div style="flex:1;"></div>
+                    <sc-if value="{{ d.showBtn }}" hint-placeholder-val="{{ true }}">
+                      <div onClick="{{ d.run }}" style="background:#4CC38A;color:#0C1710;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:750;cursor:pointer;" style-hover="background:#5FD09B">Выполнить</div>
+                    </sc-if>
+                    <sc-if value="{{ d.showState }}" hint-placeholder-val="{{ false }}">
+                      <span style="{{ d.stateSt }}">{{ d.state }}</span>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ shNoDecs }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:8px;background:#17191C;border:1px solid rgba(240,244,242,.07);border-radius:10px;padding:11px 13px;font-size:11.5px;color:#9AA39D;">
+              <span style="font-family:'Material Symbols Rounded';font-size:15px;color:#4CC38A;">verified</span>Экономика здоровая — активных решений нет
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ЧАТ -->
+  <sc-if value="{{ chOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ chClose }}" style="position:fixed;inset:0;background:rgba(6,8,9,.45);z-index:110;animation:fadein .15s;">
+      <div onClick="{{ stopProp }}" style="position:absolute;top:0;right:0;bottom:0;width:424px;background:#141619;border-left:1px solid rgba(240,244,242,.09);animation:slidein .22s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid rgba(240,244,242,.07);">
+          <div style="width:30px;height:30px;border-radius:9px;background:#4CC38A;position:relative;flex:none;">
+            <div style="position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:2px;background:#101214;"></div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13.5px;font-weight:750;">Марк</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;">отвечаю по данным · WB 07:42</div>
+          </div>
+          <div onClick="{{ chClose }}" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#9AA39D;" style-hover="background:#1D2125"><span style="font-family:'Material Symbols Rounded';font-size:18px;">close</span></div>
+        </div>
+        <div ref="{{ chRef }}" style="flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:11px;">
+          <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:4px 12px 12px 12px;padding:10px 13px;font-size:12px;line-height:1.5;color:#C6CCC8;">Спросите о прибыли, ценах, остатках, рекламе или плане — отвечу по данным, с формулой и источником.</div>
+          <sc-for list="{{ chMsgs }}" as="m" hint-placeholder-count="0">
+            <div style="{{ m.rowSt }}">
+              <div style="{{ m.bubbleSt }}">
+                <div style="font-size:12.5px;line-height:1.5;">{{ m.text }}</div>
+                <sc-if value="{{ m.hasMeta }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:9px;background:#101214;border:1px solid rgba(240,244,242,.07);border-radius:9px;padding:9px 11px;display:flex;flex-direction:column;gap:4px;">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5C645E;">период · {{ m.period }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5C645E;">источник · {{ m.src }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#8FB89F;line-height:1.5;">{{ m.formula }}</div>
+                    <div style="display:flex;align-items:center;gap:7px;margin-top:2px;">
+                      <div style="flex:1;height:3px;background:#24282B;border-radius:2px;"><div style="{{ m.confBarSt }}"></div></div>
+                      <span style="font-family:'JetBrains Mono',monospace;font-size:8.5px;color:#4CC38A;">{{ m.conf }}%</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+                    <sc-for list="{{ m.actions }}" as="act" hint-placeholder-count="0">
+                      <div onClick="{{ act.go }}" style="background:#1D2A23;border:1px solid rgba(76,195,138,.3);color:#4CC38A;border-radius:7px;padding:5px 10px;font-size:10.5px;font-weight:700;cursor:pointer;" style-hover="background:#22352B">{{ act.label }} →</div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ chTyping }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:4px 12px 12px 12px;padding:12px 14px;display:flex;gap:4px;align-items:center;width:fit-content;">
+              <div style="width:5px;height:5px;border-radius:50%;background:#5C645E;animation:typebounce 1.1s infinite;"></div>
+              <div style="width:5px;height:5px;border-radius:50%;background:#5C645E;animation:typebounce 1.1s .15s infinite;"></div>
+              <div style="width:5px;height:5px;border-radius:50%;background:#5C645E;animation:typebounce 1.1s .3s infinite;"></div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="padding:10px 14px 14px;border-top:1px solid rgba(240,244,242,.07);">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">
+            <sc-for list="{{ chSuggests }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.go }}" style="border:1px solid rgba(240,244,242,.1);border-radius:8px;padding:5px 9px;font-size:10.5px;font-weight:600;color:#9AA39D;cursor:pointer;" style-hover="color:#E7EAE8;border-color:rgba(240,244,242,.25)">{{ s.t }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:7px;">
+            <input onChange="{{ chOnInput }}" onKeyDown="{{ chOnKey }}" value="{{ chInput }}" placeholder="Спросите про деньги, цены, остатки…" style="flex:1;border:1px solid rgba(240,244,242,.12);border-radius:10px;padding:10px 12px;font-family:'Inter Tight',sans-serif;font-size:12.5px;color:#E7EAE8;background:#101214;">
+            <div onClick="{{ chSend }}" style="width:40px;height:40px;border-radius:10px;background:#4CC38A;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;" style-hover="background:#5FD09B">
+              <span style="font-family:'Material Symbols Rounded';font-size:18px;color:#0C1710;">send</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ТОСТЫ -->
+  <div style="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;">
+    <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="0">
+      <div style="background:#E7EAE8;color:#101214;border-radius:11px;padding:10px 16px;font-size:12.5px;font-weight:650;box-shadow:0 14px 34px -10px rgba(0,0,0,.6);animation:toastin .22s ease-out;display:flex;align-items:center;gap:8px;">
+        <span style="font-family:'Material Symbols Rounded';font-size:16px;color:#1E7A4E;">check_circle</span>{{ t.text }}
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Обзор&quot;,&quot;options&quot;:[&quot;Обзор&quot;,&quot;Автономия&quot;,&quot;Деньги&quot;,&quot;Витрина&quot;,&quot;Журнал&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Демо&quot;}}">
+class Component extends DCLogic {
+  state = {
+    ready:false, screen:'ov', decSt:{}, expanded:{}, restOpen:false,
+    feedExtra:[], apModes:{}, jFilter:'all', journalExtra:[],
+    moneyTable:false, shopSel:null, chatOpen:false, chatMsgs:[], chatTyping:false, chatInput:'',
+    toasts:[],
+  };
+
+  componentDidMount() {
+    import('./data.js').then(m => {
+      this.M = m; this.setState({ ready:true });
+      const map = {'Обзор':'ov','Автономия':'auto','Деньги':'money','Витрина':'shop','Журнал':'journal'};
+      const s = this.props.startScreen;
+      if (s && map[s]) this.setState({ screen: map[s] });
+      this.feedTimer = setInterval(() => {
+        if (!this.M || document.hidden) return;
+        const pool = this.M.FEED_POOL;
+        const item = pool[this.feedIdx = ((this.feedIdx||0)+1) % pool.length];
+        const now = new Date();
+        const t = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+        this.setState(st => ({ feedExtra:[{...item, t, fresh:true}, ...st.feedExtra].slice(0,8) }));
+      }, 11000);
+    });
+  }
+  componentWillUnmount() { clearInterval(this.feedTimer); }
+
+  toast(text) {
+    const id = Math.random().toString(36).slice(2);
+    this.setState(st => ({ toasts:[...st.toasts, {id, text}] }));
+    setTimeout(()=>this.setState(st=>({ toasts: st.toasts.filter(t=>t.id!==id) })), 3200);
+  }
+  go = (s) => this.setState({ screen:s, chatOpen:false });
+  decs() {
+    const M = this.M; if (!M) return [];
+    return M.DECISIONS.map(d => ({ ...d, e: M.EVENTS.find(e=>e.id===d.ev) })).filter(d=>d.e);
+  }
+  runDec(d, silent) {
+    this.setState(st => ({ decSt:{...st.decSt, [d.ev]:'run'} }));
+    setTimeout(() => {
+      this.setState(st => ({ decSt:{...st.decSt, [d.ev]:'done'},
+        journalExtra:[{ t:'только что', who:'ВЫ', what:d.title, res:'WB API · 200 OK', st:'done', fact:'мониторинг эффекта запущен' }, ...st.journalExtra],
+        feedExtra:[{ icon:'done_all', txt:'Выполнено: '+d.title, t:'только что', fresh:true }, ...st.feedExtra].slice(0,8) }));
+      if (!silent) this.toast('Выполнено · WB API 200 OK · записано в журнал');
+    }, 1300);
+  }
+  spark(points, w=54, h=18, color='#4CC38A') {
+    const max = Math.max(...points), min = Math.min(...points);
+    const pts = points.map((v,i) => `${(i/(points.length-1)*w).toFixed(1)},${(h-2-((v-min)/(max-min||1))*(h-4)).toFixed(1)}`).join(' ');
+    return React.createElement('svg', {width:w, height:h, style:{display:'block'}},
+      React.createElement('polyline', {points:pts, fill:'none', stroke:color, strokeWidth:1.5, strokeLinejoin:'round', strokeLinecap:'round'}));
+  }
+  tileSt(p, size=30) {
+    return `width:${size}px;height:${size}px;border-radius:8px;background:${p.tile};color:#3A463E;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:${Math.round(size*0.34)}px;font-weight:700;flex:none;`;
+  }
+
+  vCore() {
+    const st = this.state;
+    const open = this.M ? this.decs().filter(d=>!st.decSt[d.ev]).length : 0;
+    const navItem = (label, s, badge) => ({
+      label, badge:badge||'', go:()=>this.go(s),
+      st:`display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:650;cursor:pointer;transition:color .12s;${st.screen===s?'background:#1D2125;color:#E7EAE8;':'color:#9AA39D;'}`,
+      badgeSt: badge ? `min-width:17px;height:17px;border-radius:6px;background:#4CC38A;color:#0C1710;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;` : 'display:none;',
+    });
+    return {
+      nav: [ navItem('Обзор','ov', open?String(open):''), navItem('Автономия','auto'), navItem('Деньги','money'), navItem('Витрина','shop'), navItem('Журнал','journal') ],
+      openChat: ()=>this.setState({chatOpen:true}),
+      stopProp: (e)=>e.stopPropagation(),
+      toasts: st.toasts,
+      isOv: st.screen==='ov', isAuto: st.screen==='auto', isMoney: st.screen==='money', isShop: st.screen==='shop', isJournal: st.screen==='journal',
+    };
+  }
+
+  vOv() {
+    const M = this.M, st = this.state;
+    if (!M) return { feed:[], ovCards:[], restRows:[], signals:[], feedMeta:'', ovMeta:'', safeText:'', safeBtnLabel:'', restCount:'', restIcon:'expand_more' };
+    const list = this.decs();
+    const crits = list.filter(d=>d.e.sev==='crit').slice(0,3);
+    const safe = list.filter(d=>d.safe && !st.decSt[d.ev]);
+    const rest = list.filter(d=>!crits.includes(d) && !d.safe);
+    const doneN = list.filter(d=>st.decSt[d.ev]).length;
+    const iconColors = { sync:'#5C645E', done_all:'#4CC38A', block:'#E0705A', edit_document:'#E5B15C', inventory_2:'#E5B15C', campaign:'#E5B15C', send:'#5C645E', price_check:'#4CC38A', account_balance:'#9AA39D', monitoring:'#5C645E', local_fire_department:'#E0705A', travel_explore:'#5C645E', fact_check:'#4CC38A', flag:'#4CC38A', shield:'#4CC38A' };
+    const feedAll = [...st.feedExtra, ...M.FEED.slice().reverse()];
+    const mkCard = (d) => {
+      const state = st.decSt[d.ev];
+      const exp = !!st.expanded[d.ev];
+      const e = d.e;
+      return {
+        num:d.num, title:d.title, why:d.why,
+        st:`background:#17191C;border:1px solid rgba(240,244,242,${state?'.05':'.09'});border-radius:13px;padding:15px 17px;${state==='done'||state==='rej'?'opacity:.6;':''}`,
+        stripeSt:`width:3px;align-self:stretch;border-radius:2px;flex:none;background:${state?'#3A3F43':e.sev==='crit'?'#E0705A':'#E5B15C'};`,
+        urg:e.urgency, urgSt:`font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${e.sev==='crit'?'rgba(224,112,90,.14)':'rgba(229,177,92,.13)'};color:${e.sev==='crit'?'#E0705A':'#E5B15C'};`,
+        stateChip: state==='done'?'выполнено':state==='rej'?'отклонено':state==='run'?'выполняется…':'',
+        stateSt: state?`font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${state==='done'?'rgba(76,195,138,.14)':state==='rej'?'rgba(224,112,90,.14)':'rgba(76,195,138,.1)'};color:${state==='done'?'#4CC38A':state==='rej'?'#E0705A':'#4CC38A'};${state==='run'?'animation:blink 1s infinite;':''}`:'display:none;',
+        eff:(e.effect>0?'+':'−')+M.fmtN(Math.abs(e.effect))+' ₽', effLabel:e.effectLabel,
+        effSt:`font-family:'JetBrains Mono',monospace;font-size:15.5px;font-weight:700;color:${e.effect>0?'#4CC38A':'#E0705A'};`,
+        expanded:exp, detailsLabel: exp?'Свернуть':'Детали',
+        toggle:()=>this.setState(s=>({expanded:{...s.expanded,[d.ev]:!exp}})),
+        steps:d.steps.map((t,i)=>({n:String(i+1).padStart(2,'0'), t})),
+        calc:e.calc.map(t=>({t})), source:e.source,
+        showBtns:!state, showStatus:!!state, exec:d.exec+' · откат в 1 клик',
+        run:()=>this.runDec(d),
+        reject:()=>{ this.setState(s=>({decSt:{...s.decSt,[d.ev]:'rej'}})); this.toast('Отклонено — Марк не будет предлагать повторно'); },
+        statusIcon: state==='done'?'check_circle':state==='rej'?'cancel':'progress_activity',
+        statusText: state==='done'?'Выполнено · WB API 200 OK':state==='rej'?'Отклонено вами':'Выполняю…',
+        statusSt:`display:flex;align-items:center;gap:7px;font-size:12px;font-weight:650;color:${state==='done'?'#4CC38A':state==='rej'?'#E0705A':'#4CC38A'};`,
+        undo:()=>{ this.setState(s=>({decSt:{...s.decSt,[d.ev]:undefined}})); this.toast(state==='done'?'Отменено — вернул как было':'Решение снова в очереди'); },
+        undoLabel: state==='run'?'':'· Отменить',
+      };
+    };
+    const sigTone = { ok:'#4CC38A', warn:'#E5B15C', crit:'#E0705A' };
+    const signals = [
+      { k:'Прибыль · 7 дней', v:'176,4 тыс ₽', d:'−11,8%', tone:'warn', sub:'реклама и акция — решения готовы', pts:[8,9,8,7,8,7,6,7], nav:'money' },
+      { k:'Маржинальность', v:'26,9%', d:'−0,5 п.п.', tone:'ok', sub:'цель ≥ 25%', pts:[6,7,7,6,7,7,6,7], nav:'money' },
+      { k:'Деньги в риске', v:'527,5 тыс ₽', d:'+18%', tone:'crit', sub:'излишки + минус-цены + сверка', pts:[3,4,4,5,6,6,7,8], nav:'ov' },
+      { k:'Сток-риск', v:'«Дени» · 9 дн', d:'1 SKU', tone:'crit', sub:'поставка ждёт решения', pts:[9,8,7,6,5,4,3,3], nav:'shop' },
+      { k:'ДРР средний', v:'12,8%', d:'в лимите', tone:'ok', sub:'guardrail 15% · 2 нарушения', pts:[5,6,5,6,7,6,6,6], nav:'money' },
+      { k:'Выкуп', v:'37,6%', d:'+1,9 п.п.', tone:'ok', sub:'план 36%', pts:[5,5,6,6,6,7,7,7], nav:'money' },
+    ];
+    return {
+      feedMeta:'синк каждые 30 мин',
+      feed: feedAll.slice(0,14).map((f,i) => ({
+        icon:f.icon, txt:f.txt, t:f.t, iconColor:iconColors[f.icon]||'#5C645E',
+        st:`padding:9px 10px;border-radius:9px;margin-top:2px;${f.fresh&&i===0?'animation:feedin .4s ease-out;background:#17191C;':''}`,
+      })),
+      ovMeta:`${crits.filter(d=>!st.decSt[d.ev]).length} срочных · разобрано ${doneN} из ${list.length}`,
+      ovCards: crits.map(mkCard),
+      safeRowSt:`display:flex;align-items:center;gap:10px;background:#17191C;border:1px solid rgba(76,195,138,.18);border-radius:11px;padding:11px 15px;margin-top:14px;`,
+      safeText: safe.length ? `Безопасные решения (${safe.length}): ${safe.map(d=>d.title.split(' ').slice(0,2).join(' ')+'…').join(' · ')} — без риска для оборота` : 'Все безопасные решения выполнены',
+      safeBtnLabel: safe.length ? 'Выполнить оба' : '✓',
+      safeBtnSt:`margin-left:auto;flex:none;background:#1D2A23;border:1px solid rgba(76,195,138,.3);color:#4CC38A;border-radius:8px;padding:7px 13px;font-size:11.5px;font-weight:700;cursor:pointer;`,
+      safeRun:()=>{ if(!safe.length) return; safe.forEach(d=>this.runDec(d, true)); this.toast(`Выполняю ${safe.length} безопасных решения`); },
+      restCount:`${rest.length} задач`, restIcon: st.restOpen?'expand_less':'expand_more', restOpen:st.restOpen,
+      restToggle:()=>this.setState(s=>({restOpen:!s.restOpen})),
+      restRows: rest.map(d => {
+        const state = st.decSt[d.ev];
+        return {
+          title:d.title, go:()=>this.toast('Полная карточка решения — в разделе Обзор появится при повышении приоритета'),
+          st:`display:flex;align-items:center;gap:10px;background:#141619;border:1px solid rgba(240,244,242,.06);border-radius:10px;padding:9px 13px;cursor:pointer;${state?'opacity:.55;':''}`,
+          dotSt:`width:7px;height:7px;border-radius:50%;flex:none;background:${state?'#3A3F43':d.e.sev==='ok'?'#4CC38A':'#E5B15C'};`,
+          eff:(d.e.effect>0?'+':'−')+M.fmtN(Math.abs(d.e.effect))+' ₽',
+          effSt:`font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${d.e.effect>0?'#4CC38A':'#9AA39D'};`,
+          state: state==='done'?'✓':state==='rej'?'—':d.e.urgency,
+          stateSt:`font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C645E;`,
+        };
+      }),
+      signals: signals.map(s => ({
+        k:s.k, v:s.v, d:s.d, sub:s.sub, go:()=>this.go(s.nav),
+        dSt:`font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${sigTone[s.tone]};`,
+        spark:this.spark(s.pts, 54, 18, sigTone[s.tone]),
+        st:`display:flex;align-items:center;gap:10px;background:#17191C;border:1px solid rgba(240,244,242,.08);border-left:2.5px solid ${sigTone[s.tone]};border-radius:11px;padding:11px 13px;cursor:pointer;transition:border-color .12s;`,
+      })),
+    };
+  }
+
+  // ---------- автономия ----------
+  vAuto() {
+    const M = this.M, st = this.state;
+    if (!M) return { apDomains:[], apSafety:[], apSavedRows:[], apSaved:'', apSavedBig:'' };
+    const modeLabels = [['off','Выкл'],['sign','На подтверждении'],['auto','Авто']];
+    return {
+      apSaved:'≈ 9 ч/нед вашего времени',
+      apSavedBig:M.TIME_SAVED.total,
+      apSavedRows:M.TIME_SAVED.rows.map(([k,v])=>({k,v})),
+      apSafety:M.SAFETY.map(t=>({t})),
+      apPause:()=>this.toast('Автодействия приостановлены до завтра 07:00 — всё пойдёт на подтверждение'),
+      apDomains: M.AUTOPILOT.map((d,di) => ({
+        domain:d.domain, icon:d.icon, runs:d.runs30+' операций / 30 дн',
+        tasks:d.tasks.map((t,ti) => {
+          const key = di+'_'+ti;
+          const cur = st.apModes[key] ?? t.mode;
+          return {
+            name:t.name,
+            meta:[t.limit!=='—'?t.limit:null, t.last!=='—'?'запуск: '+t.last:null, t.runs+' раз/30 дн'].filter(Boolean).join('  ·  '),
+            locked:t.hard, free:!t.hard,
+            modes: modeLabels.map(([id,label]) => ({ label,
+              go:()=>{ this.setState(s=>({apModes:{...s.apModes,[key]:id}}));
+                this.toast(id==='auto' ? 'Переведено в авто — в лимитах, с записью в журнал' : id==='sign' ? 'Теперь задача ждёт вашего подтверждения' : 'Выключено — Марк только наблюдает'); },
+              st:`padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .12s;${cur===id?'background:#24282B;color:#E7EAE8;':'color:#5C645E;'}`,
+            })),
+          };
+        }),
+      })),
+    };
+  }
+
+  // ---------- деньги ----------
+  vMoney() {
+    const M = this.M, st = this.state;
+    if (!M) return { moKpis:[], moExp:[], moTop:[], moAnti:[], moRows:[], moExpTotal:'', moTableIcon:'expand_more', moTableOpen:false };
+    const T = M.TOTALS;
+    const vSt = (c) => `font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;margin-top:4px;letter-spacing:-.01em;${c?'color:'+c+';':''}`;
+    const items = [
+      ['Комиссия WB', T.comm30], ['Логистика', T.logi30], ['Реклама', T.ad30],
+      ['Налог УСН 6%', T.tax30], ['Операционные', T.opexM], ['Хранение', T.stor30], ['Штрафы', T.fines],
+    ].sort((a,b)=>b[1]-a[1]);
+    const maxE = items[0][1];
+    const byProfit = M.PRODUCTS.slice().sort((a,b)=>b.profit30-a.profit30);
+    const mkP = (p, neg) => ({
+      mono:p.mono, tileSt:this.tileSt(p, 24), name:p.name.replace('Футболка базовая','Футболка'),
+      margin:M.pct(p.margin,1)+' маржа',
+      v:(p.profit30<0?'−':'+')+M.fmtN(Math.abs(p.profit30)/1000)+'т',
+      vSt:`font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;flex:none;color:${p.profit30<0?'#E0705A':neg?'#E5B15C':'#4CC38A'};`,
+    });
+    return {
+      moKpis: [
+        { k:'Заказы · 30 дней', v:M.fmtM(T.ordersRub30)+' ₽', sub:M.fmtN(T.orders30)+' шт · чек '+M.fmtR(T.avgCheck), vSt:vSt() },
+        { k:'Выкуплено', v:M.fmtM(T.rev30)+' ₽', sub:'выкуп '+M.pct(T.buyoutPct), vSt:vSt() },
+        { k:'Операционная прибыль', v:M.fmtM(T.profit30)+' ₽', sub:'маржа '+M.pct(T.profit30/T.rev30*100), vSt:vSt('#4CC38A') },
+        { k:'Чистая прибыль', v:M.fmtM(T.net30)+' ₽', sub:'после опер. расходов '+M.fmtN(T.opexM/1000)+'т ₽', vSt:vSt() },
+      ],
+      moExp: items.map(([k,v],i) => ({ k, v:M.fmtN(v)+' ₽',
+        barSt:`height:100%;width:${Math.max(2,v/maxE*100)}%;background:${i===0?'#4CC38A':i===1?'#2E7D57':'#1E4A38'};border-radius:5px;` })),
+      moExpTotal:M.fmtR(items.reduce((s,x)=>s+x[1],0)),
+      moTop: byProfit.slice(0,5).map(p=>mkP(p,false)),
+      moAnti: byProfit.slice(-5).reverse().map(p=>mkP(p,true)),
+      moTableOpen: st.moneyTable, moTableIcon: st.moneyTable?'expand_less':'expand_more',
+      moTableToggle:()=>this.setState(s=>({moneyTable:!s.moneyTable})),
+      moRows: byProfit.map(p => ({
+        name:p.name,
+        orders:M.fmtN(p.oD*30), buyout:M.pct(p.buyout,0), rev:M.fmtN(p.rev30/1000)+'т',
+        profit:(p.profit30<0?'−':'')+M.fmtN(Math.abs(p.profit30)/1000)+'т',
+        profitSt:`font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;text-align:right;color:${p.profit30<0?'#E0705A':'#4CC38A'};`,
+        margin:M.pct(p.margin,1),
+        marginSt:`font-family:'JetBrains Mono',monospace;font-size:11px;text-align:right;color:${p.margin<0?'#E0705A':p.margin<12?'#E5B15C':'#C6CCC8'};`,
+        price:M.fmtN(p.price)+' / '+M.fmtN(p.safe)+' ₽',
+        priceSt:`font-family:'JetBrains Mono',monospace;font-size:11px;text-align:right;color:${p.priceFlag!=='ok'?'#E0705A':'#9AA39D'};`,
+        numSt:`font-family:'JetBrains Mono',monospace;font-size:11px;text-align:right;color:#C6CCC8;`,
+      })),
+    };
+  }
+
+  // ---------- витрина ----------
+  vShop() {
+    const M = this.M, st = this.state;
+    if (!M) return { shopCards:[], shKpis:[], shWater:[], shLegend:[], shDecs:[], shOpen:false };
+    const dot = (c) => `width:7px;height:7px;border-radius:50%;flex:none;background:${c};`;
+    const shopCards = M.PRODUCTS.map(p => {
+      const camp = M.CAMPAIGNS.find(c=>c.skus.includes(p.id));
+      const priceC = p.priceFlag==='ok'?'#4CC38A':'#E0705A';
+      const stockC = p.daysOOS<=14?'#E0705A':p.daysOOS>60?'#E5B15C':'#4CC38A';
+      const adC = !camp ? '#3A3F43' : camp.profitAfter<0 ? '#E0705A' : camp.status==='burn' ? '#E5B15C' : '#4CC38A';
+      return {
+        mono:p.mono, tileSt:this.tileSt(p, 36), name:p.name, nm:p.nm,
+        price:M.fmtR(p.price),
+        margin:M.pct(p.margin,1),
+        marginSt:`font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:${p.margin<0?'#E0705A':p.margin<12?'#E5B15C':'#4CC38A'};`,
+        st:`background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .12s;`,
+        go:()=>this.setState({shopSel:p.id}),
+        dots: [
+          { label:'цена', dotSt:dot(priceC), title:p.priceFlag==='ok'?'Цена выше безопасной':'Цена ниже безопасной '+M.fmtR(p.safe) },
+          { label:'склад', dotSt:dot(stockC), title:p.daysOOS<=14?'Остаток на '+p.daysOOS+' дн — риск OOS':p.daysOOS>60?'Излишек: '+p.daysOOS+' дней стока':'Запас на '+p.daysOOS+' дней' },
+          { label:'реклама', dotSt:dot(adC), title:!camp?'Рекламы нет':camp.name+' · '+(camp.profitAfter<0?'в минус':'ок') },
+        ],
+      };
+    });
+    const p = st.shopSel ? M.byId(st.shopSel) : null;
+    if (!p) return { shopCards, shKpis:[], shWater:[], shLegend:[], shDecs:[], shOpen:false, shClose:()=>{}, shHasDecs:false, shNoDecs:false };
+    const segs = [
+      ['Комиссия + налог', Math.round(p.price*(1-p.k)), '#3E5C70'],
+      ['Логистика', p.logi, '#6B8CA3'],
+      ['Себестоимость', p.cost, '#8C968E'],
+      ['Реклама', p.ad, '#B5751A'],
+      ['Хранение', p.stor, '#C9A96A'],
+      ['Прибыль', Math.max(0,p.profitU), '#4CC38A'],
+    ];
+    const decs = this.decs().filter(d=>d.e.skus.includes(p.id));
+    const kSt = (c) => `font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:700;margin-top:3px;${c?'color:'+c+';':''}`;
+    return {
+      shopCards, shOpen:true, shClose:()=>this.setState({shopSel:null}),
+      shMono:p.mono, shTileSt:this.tileSt(p, 40), shName:p.name,
+      shFlag: p.priceFlag==='loss'?'ниже break-even':p.priceFlag==='unsafe'?'ниже безопасной':'цена в норме',
+      shFlagSt:`font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;${p.priceFlag==='ok'?'background:rgba(76,195,138,.13);color:#4CC38A;':'background:rgba(224,112,90,.14);color:#E0705A;'}`,
+      shSub:`${p.nm} · ${p.cat} · р. ${p.sizes}${p.promo?' · '+p.promo:''}`,
+      shKpis: [
+        { k:'Прибыль / шт', v:(p.profitU<0?'−':'')+M.fmtN(Math.abs(p.profitU))+' ₽', vSt:kSt(p.profitU<0?'#E0705A':'#4CC38A') },
+        { k:'Маржа', v:M.pct(p.margin,1), vSt:kSt(p.margin<12?'#E5B15C':'') },
+        { k:'Безопасная цена', v:M.fmtR(p.safe), vSt:kSt(p.priceFlag!=='ok'?'#E0705A':'') },
+        { k:'Сток', v:M.fmtN(p.stockT)+' · '+p.daysOOS+' дн', vSt:kSt(p.daysOOS<=14?'#E0705A':p.daysOOS>60?'#E5B15C':'') },
+      ],
+      shWater: segs.map(([k,v,c]) => ({ title:`${k}: ${M.fmtR(v)}`, st:`width:${(v/p.price*100).toFixed(1)}%;background:${c};` })),
+      shLegend: [
+        { k:'Цена продажи', v:M.fmtR(p.price), dotSt:'width:8px;height:8px;border-radius:3px;background:#E7EAE8;flex:none;' },
+        ...segs.map(([k,v,c]) => ({ k, v:'−'+M.fmtR(v), dotSt:`width:8px;height:8px;border-radius:3px;background:${c};flex:none;` })).slice(0,5),
+        { k:'Прибыль', v:(p.profitU<0?'−':'')+M.fmtR(Math.abs(p.profitU)), dotSt:'width:8px;height:8px;border-radius:3px;background:#4CC38A;flex:none;' },
+      ],
+      shHasDecs: decs.length>0, shNoDecs: decs.length===0,
+      shDecs: decs.map(d => {
+        const state = this.state.decSt[d.ev];
+        return {
+          title:d.title,
+          eff:(d.e.effect>0?'+':'−')+M.fmtN(Math.abs(d.e.effect))+' ₽ · '+d.e.effectLabel,
+          effSt:`font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:${d.e.effect>0?'#4CC38A':'#E0705A'};`,
+          showBtn:!state, showState:!!state,
+          run:()=>this.runDec(d),
+          state: state==='done'?'выполнено ✓':state==='rej'?'отклонено':'выполняется…',
+          stateSt:`font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:${state==='done'?'#4CC38A':state==='rej'?'#E0705A':'#4CC38A'};${state==='run'?'animation:blink 1s infinite;':''}`,
+        };
+      }),
+    };
+  }
+
+  // ---------- журнал ----------
+  vJournal() {
+    const M = this.M, st = this.state;
+    if (!M) return { jFilters:[], jDays:[] };
+    const filters = [['all','Все'],['auto','Автоматические'],['manual','Подтверждённые вами']];
+    const match = (it) => st.jFilter==='all' || (st.jFilter==='auto' ? it.st==='auto' : it.who==='ВЫ');
+    const days = M.JOURNAL.map((day,i) => ({
+      day: day.day,
+      items: (i===0 ? [...st.journalExtra, ...day.items] : day.items).filter(match),
+    })).filter(d=>d.items.length);
+    return {
+      jFilters: filters.map(([id,label]) => ({ label, go:()=>this.setState({jFilter:id}),
+        st:`padding:6px 12px;border-radius:8px;font-size:11.5px;font-weight:650;cursor:pointer;border:1px solid ${st.jFilter===id?'rgba(76,195,138,.4)':'rgba(240,244,242,.1)'};color:${st.jFilter===id?'#4CC38A':'#9AA39D'};background:${st.jFilter===id?'#1D2A23':'transparent'};transition:all .12s;` })),
+      jExport:()=>this.toast('Аудит выгружен (CSV): действия, до/после, ответы WB API'),
+      jDays: days.map(day => ({ day:day.day, items:day.items.map(it => ({
+        t:it.t, who:it.who,
+        whoSt:`flex:none;width:46px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:3px 0;border-radius:5px;${it.who==='МАРК'?'background:rgba(76,195,138,.13);color:#4CC38A;':'background:#24282B;color:#C6CCC8;'}`,
+        what:it.what, res:it.res,
+        fact:it.fact||'', factSt: it.fact ? `flex:none;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#4CC38A;background:rgba(76,195,138,.1);border-radius:6px;padding:3px 8px;max-width:210px;` : 'display:none;',
+        dotSt:`flex:none;width:6px;height:6px;border-radius:50%;background:${it.st==='done'?'#4CC38A':it.st==='auto'?'#5C645E':'#E5B15C'};`,
+      })) })),
+    };
+  }
+
+  // ---------- чат ----------
+  ask(text) {
+    if (!text || !text.trim() || !this.M) return;
+    const M = this.M;
+    this.setState(st => ({ chatMsgs:[...st.chatMsgs, {who:'me', text}], chatTyping:true, chatInput:'' }));
+    setTimeout(() => {
+      const low = text.toLowerCase();
+      let best = null, bestScore = 0;
+      for (const a of M.CHAT_ANSWERS) {
+        const score = a.match.reduce((s,w) => s + (low.includes(w)?1:0), 0);
+        if (score > bestScore) { best = a; bestScore = score; }
+      }
+      const ans = best || M.CHAT_DEFAULT;
+      this.setState(st => ({ chatTyping:false, chatMsgs:[...st.chatMsgs, {who:'mark', ...ans}] }));
+    }, 950);
+  }
+  vChat() {
+    const M = this.M, st = this.state;
+    if (!this.chRef) this.chRef = React.createRef();
+    if (!M) return { chMsgs:[], chSuggests:[], chRef:this.chRef, chOpen:false, chTyping:false, chInput:'' };
+    const navMap = { prices:'ov', ads:'money', logi:'shop', geo:'money', home:'ov', fin:'money' };
+    return {
+      chOpen:st.chatOpen, chClose:()=>this.setState({chatOpen:false}),
+      chRef:this.chRef, chTyping:st.chatTyping, chInput:st.chatInput,
+      chOnInput:(e)=>this.setState({chatInput:e.target.value}),
+      chOnKey:(e)=>{ if(e.key==='Enter') this.ask(e.target.value); },
+      chSend:()=>this.ask(st.chatInput),
+      chSuggests:M.CHAT_SUGGEST.map(t=>({t, go:()=>this.ask(t)})),
+      chMsgs: st.chatMsgs.map(m => {
+        if (m.who==='me') return {
+          rowSt:'display:flex;justify-content:flex-end;',
+          bubbleSt:'max-width:82%;background:#4CC38A;color:#0C1710;border-radius:12px 4px 12px 12px;padding:9px 13px;font-weight:500;',
+          text:m.text, hasMeta:false, actions:[],
+        };
+        return {
+          rowSt:'display:flex;',
+          bubbleSt:'max-width:92%;background:#17191C;border:1px solid rgba(240,244,242,.08);border-radius:4px 12px 12px 12px;padding:10px 13px;color:#C6CCC8;',
+          text:m.text, hasMeta:m.src!=='—',
+          period:m.period, src:m.src, formula:m.formula, conf:String(m.conf),
+          confBarSt:`height:100%;width:${m.conf}%;background:#4CC38A;border-radius:2px;`,
+          actions:(m.actions||[]).map(a => ({ label:a.label, go:()=>this.go(navMap[a.nav]||'ov') })),
+        };
+      }),
+    };
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.chRef && this.chRef.current && (prevState.chatMsgs !== this.state.chatMsgs || prevState.chatTyping !== this.state.chatTyping)) {
+      this.chRef.current.scrollTop = this.chRef.current.scrollHeight;
+    }
+  }
+
+  renderVals() {
+    return { ...this.vCore(), ...this.vOv(), ...this.vAuto(), ...this.vMoney(), ...this.vShop(), ...this.vJournal(), ...this.vChat() };
+  }
+}
+</script>
+</body>
+</html>
