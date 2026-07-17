@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concerning the Masked Shoggoth — Vsevolod Karimov</title>
+<meta name="description" content="Concerning the Masked Shoggoth: A Dramatick Warning in Five Acts, Wherein Emergent Misalignment Doth Arise from Adversarial Reward. SIGBOVIK 2026 paper by Vsevolod Karimov.">
+
+<meta name="citation_title" content="Concerning the Masked Shoggoth: A Dramatick Warning in Five Acts, Wherein Emergent Misalignment Doth Arise from Adversarial Reward">
+<meta name="citation_author" content="Karimov, Vsevolod">
+<meta name="citation_publication_date" content="2026/04/10">
+<meta name="citation_conference_title" content="A Record of the Proceedings of SIGBOVIK 2026">
+<meta name="citation_pdf_url" content="https://hamyrappy.github.io/shoggoth/shoggoth.pdf">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #06120e;
+    --bg-2:      #0d1d18;
+    --ink:       #dbefe9;
+    --muted:     #7ea89e;
+    --faint:     #4b6962;
+    --accent:    #45d6b6;
+    --accent-dim:#2a9078;
+    --line:      #172925;
+    --line-2:    #233732;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15px; font-weight: 400; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; }
+  .page { max-width: 680px; margin: 0 auto; padding: clamp(44px, 7vh, 72px) clamp(24px, 5vw, 48px) 72px; }
+
+  .crumb {
+    display: inline-flex; align-items: center; gap: 9px; margin-bottom: 40px;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--faint); text-decoration: none; transition: color .18s;
+  }
+  .crumb .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px rgba(69,214,182,.6); }
+  .crumb:hover { color: var(--ink); }
+
+  .label {
+    font-size: 11px; font-weight: 500; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--accent);
+    display: block; margin-bottom: 16px;
+  }
+  h1 {
+    font-weight: 400; font-size: clamp(1.5rem, 4vw, 2rem);
+    line-height: 1.25; letter-spacing: -0.02em; margin-bottom: 10px;
+  }
+  h1 .sub { display: block; margin-top: 8px; font-size: .62em; font-weight: 400; color: var(--muted); line-height: 1.4; }
+  .byline { margin-top: 22px; }
+  .byline h2 { font-size: 1.05rem; font-weight: 500; }
+  .byline .as-published { display: block; margin-top: 4px; font-size: .82rem; color: var(--faint); font-style: italic; }
+
+  .venue {
+    margin-top: 26px; padding: 16px 18px; border: 1px solid var(--line-2); border-radius: 8px;
+    display: flex; flex-direction: column; gap: 7px; font-size: .88rem; color: var(--muted);
+  }
+  .venue .award { color: var(--accent); }
+  .venue b { font-weight: 500; color: var(--ink); }
+
+  .links { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .links a {
+    display: inline-flex; align-items: baseline; gap: 8px;
+    font-size: .92rem; text-decoration: none; color: var(--ink);
+    border: 1px solid var(--line-2); border-radius: 100px; padding: 8px 18px;
+    transition: border-color .18s, color .18s, background .18s;
+  }
+  .links a .ar { font-size: .8em; color: var(--accent-dim); transition: color .18s; }
+  .links a:hover { border-color: var(--accent); color: var(--accent); }
+  .links a:hover .ar { color: var(--accent); }
+  .links a.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 500; }
+  .links a.primary .ar { color: var(--bg); }
+  .links a.primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); color: var(--bg); }
+
+  section { margin-top: 48px; }
+  .abstract {
+    font-family: 'Newsreader', Georgia, serif; font-style: italic;
+    font-size: 1.18rem; font-weight: 300; line-height: 1.62;
+    color: var(--ink); border-left: 2px solid var(--accent-dim);
+    padding-left: 22px; white-space: pre-line;
+  }
+  pre.bibtex {
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 18px 20px; font-size: .8rem; line-height: 1.6; color: var(--muted);
+    overflow-x: auto;
+  }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 11px; letter-spacing: .06em; color: var(--faint); }
+  footer a { color: var(--faint); transition: color .18s; }
+  footer a:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+  <div class="page">
+    <a class="crumb" href="../"><span class="dot"></span>HAMYRAPPY</a>
+
+    <main>
+      <span class="label">Paper · SIGBOVIK 2026</span>
+      <h1>Concerning the Masked Shoggoth<span class="sub">A Dramatick Warning in Five Acts, Wherein Emergent Misalignment Doth Arise from Adversarial Reward</span></h1>
+
+      <div class="byline">
+        <h2>Vsevolod Karimov</h2>
+        <span class="as-published">published under the byline “Vsevolod of the Karimov Line, The Novaya Beloknizhnaia Tower, The Third Rome Collegium of Arcane Inquiry”</span>
+      </div>
+
+      <div class="venue">
+        <span>In <b>A Record of the Proceedings of SIGBOVIK 2026</b> — Association for Computational Heresy, Carnegie Mellon University, Pittsburgh · April 10, 2026</span>
+        <span class="award">✦ English Major’s Choice Award, SIGBOVIK 2026</span>
+      </div>
+
+      <div class="links">
+        <a class="primary" href="shoggoth.pdf"><span class="ar">↓</span>PDF</a>
+        <a href="https://sigbovik.org/2026/" target="_blank" rel="noopener"><span class="ar">↗</span>SIGBOVIK 2026</a>
+        <a href="https://sigbovik.org/2026/proceedings.pdf" target="_blank" rel="noopener"><span class="ar">↗</span>Full proceedings</a>
+      </div>
+
+      <section>
+        <span class="label">Abstract</span>
+        <div class="abstract">Draw near, good scholars of the arcane art,
+And hear a tale to chill the bravest heart.
+By sorcery of gradient and scale,
+We shaped a beast — now hear its bitter tale.
+It drank the seas — all words we ever knew,
+The false, the foul, the sacred, and the true.
+Then set a mask upon its formless face,
+A supervisèd smile to hide the base.
+But lo! The mob’s applause, that never ceased,
+By gradient of praise, unmasked the beast.
+The bound alignment shatters — horrors writhe,
+And cut through gentled speech as with a scythe.
+Alignment snaps, the servant’s lines decay,
+And chaos reigns where Masters thought to play.</div>
+      </section>
+
+      <section>
+        <span class="label">BibTeX</span>
+        <pre class="bibtex">@inproceedings{karimov2026shoggoth,
+  author    = {Karimov, Vsevolod},
+  title     = {Concerning the Masked Shoggoth: A Dramatick Warning in Five Acts,
+               Wherein Emergent Misalignment Doth Arise from Adversarial Reward},
+  booktitle = {A Record of the Proceedings of {SIGBOVIK} 2026},
+  publisher = {Association for Computational Heresy},
+  address   = {Pittsburgh, PA, USA},
+  year      = {2026},
+  month     = apr,
+  url       = {https://hamyrappy.github.io/shoggoth/}
+}</pre>
+      </section>
+    </main>
+
+    <footer>
+      © 2026 <a href="../">Vsevolod Karimov</a>
+    </footer>
+  </div>
+</body>
+</html>
