@@ -129,15 +129,20 @@
     content:''; position:absolute; left:-4px; top:0; bottom:0; width: 2px; background: var(--accent);
     transform: scaleY(0); transform-origin: top; transition: transform .35s cubic-bezier(.2,.7,.2,1);
   }
-  .projects li:hover { background: linear-gradient(90deg, var(--bg-2), transparent 75%); }
-  .projects li:hover::before { transform: scaleY(1); }
+  .projects li:has(.phead a) { cursor: pointer; }
+  .projects li:has(.phead a):hover { background: linear-gradient(90deg, var(--bg-2), transparent 75%); }
+  .projects li:has(.phead a):hover::before { transform: scaleY(1); }
   .phead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 7px; flex-wrap: wrap; }
   .phead .name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 400; letter-spacing: -0.01em; line-height: 1.15; }
   .phead .name .it { font-style: italic; }
-  .phead .name a { color: inherit; transition: color .18s; }
-  .phead .name a:hover { color: var(--accent); }
+  .phead .name a {
+    color: inherit; transition: color .18s, border-color .18s;
+    border-bottom: 1px solid var(--accent-dim); padding-bottom: 1px;
+  }
+  .phead .name a::after { content: ''; position: absolute; inset: 0; }
+  .phead .name a:hover { color: var(--accent); border-color: var(--accent); }
   .phead .name a .arr {
-    font-family:'JetBrains Mono',monospace; font-size: .72em; color: var(--accent-dim);
+    font-family:'JetBrains Mono',monospace; font-size: .72em; color: var(--accent);
     margin-left: 4px; display: inline-block; transition: transform .18s, color .18s;
   }
   .phead .name a:hover .arr { color: var(--accent); transform: translate(2px,-2px); }
@@ -250,31 +255,24 @@
         <ul class="projects">
           <li>
             <div class="phead">
-              <span class="name">AI Clerk</span>
+              <span class="name"><span class="i18n--ru">ИИ-менеджер для селлеров</span><span class="i18n--en">AI Manager for Sellers</span></span>
               <span class="tag startup"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
             </div>
-            <div class="desc"><span class="i18n--ru">ИИ-менеджер для продавцов на маркетплейсах. Берёт на себя операционку: карточки, рекламу, поставки. Действует сам, селлер лишь подтверждает решения. Мой основной бизнес-проект.</span><span class="i18n--en">An AI manager for marketplace sellers. It takes over operations: listings, ads, shipments. It acts on its own and the seller only approves the decisions. My main business project.</span></div>
+            <div class="desc"><span class="i18n--ru">Берёт на себя операционку на маркетплейсах: карточки, рекламу, поставки. Действует сам, селлер лишь подтверждает решения. Мой основной бизнес-проект.</span><span class="i18n--en">Takes over marketplace operations: listings, ads, shipments. It acts on its own and the seller only approves the decisions. My main business project.</span></div>
           </li>
           <li>
             <div class="phead">
-              <span class="name"><span class="i18n--ru">Звонок другу</span><span class="i18n--en">Call a Friend</span></span>
-              <span class="tag startup"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
+              <span class="name"><span class="i18n--ru">Атлас Науки</span><span class="i18n--en">Atlas of Science</span></span>
+              <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
             </div>
-            <div class="desc"><span class="i18n--ru">Доступ к ИИ-ассистенту по обычному телефонному номеру. Для людей без смартфона и интернета.</span><span class="i18n--en">Access to an AI assistant over an ordinary phone call. For people without a smartphone or internet.</span></div>
+            <div class="desc"><span class="i18n--ru">Единая машиночитаемая разметка научных корпусов — карта области, темы, статьи, утверждения, дословные фрагменты. Одна структура служит двум задачам: аналитике научного ландшафта и точному поиску для LLM-агентов. Мой основной научный проект.</span><span class="i18n--en">Unified machine-readable markup of scientific corpora — field-level maps, topics, papers, claims, verbatim spans. One structure serves two needs: research landscape analytics and precise retrieval for LLM agents. My main research project.</span></div>
           </li>
           <li>
             <div class="phead">
               <span class="name"><a href="drift-inspector/">Drift Inspector <span class="arr" aria-hidden="true">↗</span></a></span>
               <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
             </div>
-            <div class="desc"><span class="i18n--ru">Инструмент, который измеряет, как со временем меняются темы исследований. Из статей выделяются отдельные утверждения о вкладе, и по ним виден дрейф целой области. Основа для Графа Науки.</span><span class="i18n--en">A tool that measures how research topics shift over time. It extracts individual contribution claims from papers, and they reveal the drift of a whole field. A foundation for Science Graph.</span></div>
-          </li>
-          <li>
-            <div class="phead">
-              <span class="name"><span class="i18n--ru">Граф Науки</span><span class="i18n--en">Science Graph</span></span>
-              <span class="tag"><span class="i18n--ru">Исследование</span><span class="i18n--en">Research</span></span>
-            </div>
-            <div class="desc"><span class="i18n--ru">Модифицированный (гипер)граф знаний поверх массивов научных статей, который помогает ориентироваться в исследованиях, картировать научный ландшафт и автоматически проверять утверждения. В разработке.</span><span class="i18n--en">A modified knowledge (hyper)graph built over large corpora of research papers that helps navigate the literature, map the scientific landscape, and verify claims automatically. In progress.</span></div>
+            <div class="desc"><span class="i18n--ru">О чём статьи говорят и что привносят — не одно и то же. Этот инструмент выделяет из статей утверждения о вкладе и строит по ним живую карту дрейфа области — от трендов до конкретной статьи. Основа для Атласа Науки.</span><span class="i18n--en">What papers talk about and what they contribute are not the same thing. This tool extracts contribution claims from papers and turns them into a live map of a field's drift — from trends down to individual papers. Groundwork for the Atlas of Science.</span></div>
           </li>
           <li>
             <div class="phead">
@@ -285,8 +283,15 @@
           </li>
           <li>
             <div class="phead">
+              <span class="name"><span class="i18n--ru">Звонок другу</span><span class="i18n--en">Call a Friend</span></span>
+              <span class="tag startup"><span class="i18n--ru">Стартап</span><span class="i18n--en">Startup</span></span>
+            </div>
+            <div class="desc"><span class="i18n--ru">Доступ к ИИ-ассистенту по обычному телефонному номеру. Для людей без смартфона и интернета.</span><span class="i18n--en">Access to an AI assistant over an ordinary phone call. For people without a smartphone or internet.</span></div>
+          </li>
+          <li>
+            <div class="phead">
               <span class="name"><a href="shoggoth/">Concerning the Masked Shoggoth <span class="arr" aria-hidden="true">↗</span></a></span>
-              <span class="tag"><span class="i18n--ru">Поэма</span><span class="i18n--en">Poem</span></span>
+              <span class="tag"><span class="i18n--ru">Поучительная история</span><span class="i18n--en">Cautionary tale</span></span>
             </div>
             <div class="desc"><span class="i18n--ru">Научная статья, излагающая emergent misalignment строгим пятистопным ямбом. Приз English Major's Choice, SIGBOVIK 2026 (CMU).</span><span class="i18n--en">A research paper that renders emergent misalignment in rigorous iambic pentameter. English Major's Choice Award, SIGBOVIK 2026 (CMU).</span></div>
           </li>
