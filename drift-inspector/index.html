@@ -1,99 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Drift Inspector — Scientific Drift via Atomic Contribution Claims</title>
-<style>
-  :root {
-    --bg: #faf9f6; --fg: #1a1a1a; --muted: #6b6b6b; --card: #ffffff;
-    --border: #e3e0d8; --accent: #2b5f75; --accent-soft: #eaf2f5;
-    --chip: #f0ede5;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #17181a; --fg: #e8e6e1; --muted: #9a978f; --card: #1f2124;
-      --border: #33363b; --accent: #7fb3c8; --accent-soft: #22313a;
-      --chip: #2a2c30;
-    }
-  }
-  * { box-sizing: border-box; margin: 0; }
-  body {
-    background: var(--bg); color: var(--fg);
-    font: 17px/1.55 Georgia, 'Times New Roman', serif;
-    max-width: 880px; margin: 0 auto; padding: 48px 24px 64px;
-  }
-  h1 { font-size: 2.1rem; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); margin: 6px 0 28px; font-size: 1.05rem; }
-  p.pitch { margin-bottom: 32px; max-width: 62ch; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 36px; }
-  a.card {
-    display: block; background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 18px 20px; text-decoration: none; color: var(--fg);
-    transition: border-color .15s;
-  }
-  a.card:hover { border-color: var(--accent); }
-  a.card.soon { opacity: .65; pointer-events: none; }
-  .card h2 { font-size: 1.12rem; margin-bottom: 6px; color: var(--accent); }
-  .card .stats { font: 13px/1.5 ui-monospace, Consolas, monospace; color: var(--muted); margin-top: 10px; }
-  .card p { font-size: .95rem; }
-  .badge { display: inline-block; font: 11px/1 ui-monospace, Consolas, monospace;
-    background: var(--accent-soft); color: var(--accent); border-radius: 4px;
-    padding: 3px 7px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
-  .links { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
-  .links a {
-    font: 14px/1 ui-monospace, Consolas, monospace; color: var(--fg);
-    background: var(--chip); border: 1px solid var(--border); border-radius: 6px;
-    padding: 8px 14px; text-decoration: none;
-  }
-  .links a:hover { border-color: var(--accent); color: var(--accent); }
-  .links a.soon { opacity: .55; pointer-events: none; }
-  footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); padding-top: 18px; }
-  footer code { font-size: .8rem; }
-</style>
-</head>
-<body>
-  <h1>Drift Inspector</h1>
-  <p class="sub">Measuring and exploring scientific drift with Atomic Contribution Claims</p>
-
-  <p class="pitch">
-    An LLM distills every abstract into <strong>atomic contribution claims</strong> —
-    what a paper actually adds, stripped of motivation and boilerplate. Claims are
-    embedded, clustered across years, and served as an interactive map where every
-    field-level trend can be traced down to the individual claims and papers behind it.
-  </p>
-
-  <div class="cards">
-    <a class="card" href="https://hamyrappy.github.io/drift-inspector-acl/">
-      <span class="badge">Live demo</span>
-      <h2>*ACL main conferences 2018–2026</h2>
-      <p>Six major venues in one joint claim space — ACL, EMNLP, NAACL, EACL, COLING, AACL — with cross-venue comparison.</p>
-      <div class="stats">69,950 claims · 88 clusters · 15,457 papers · 6 venues</div>
-    </a>
-    <a class="card" href="https://hamyrappy.github.io/drift-inspector-emnlp/">
-      <span class="badge">Paper case study</span>
-      <h2>EMNLP 2020–2025</h2>
-      <p>The single-venue, year-balanced corpus analysed in depth in the EMNLP 2026 demo paper.</p>
-      <div class="stats">16,576 claims · 80 clusters · 4,488 papers</div>
-    </a>
-    <a class="card" href="https://huggingface.co/datasets/Hamyrappy/acl-anthology-atomic-claims">
-      <span class="badge">Dataset · Hugging Face</span>
-      <h2>Full ACL Anthology</h2>
-      <p>Every abstract in the Anthology, 1963–2026, extracted into atomic claims. Released as a dataset on Hugging Face.</p>
-      <div class="stats">346,010 claims · 80,144 papers · 423 venues</div>
-    </a>
-  </div>
-
-  <div class="links">
-    <a href="https://github.com/hamyrappy/drift-inspector">GitHub — code &amp; data</a>
-    <a href="https://arxiv.org/abs/2609.39710">Paper — EMNLP 2026 Demo · arXiv</a>
-    <a href="https://huggingface.co/datasets/Hamyrappy/acl-anthology-atomic-claims">Dataset — full ACL Anthology</a>
-    <a href="https://huggingface.co/datasets/Hamyrappy/emnlp-2020-2025-atomic-claims">Dataset — EMNLP 2020–2025 + clusters</a>
-  </div>
-
-  <footer>
-    Code: MIT · Claim datasets: CC BY 4.0 (derived from ACL Anthology abstracts, CC BY 4.0).<br>
-    Any venue with titles and abstracts can be mapped with one extraction pass — see the repository for the pipeline.
-  </footer>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Drift Inspector — how research fields move</title><meta name="description" content="Drift Inspector maps atomic contribution claims from NLP, ML and CV conference papers, 2018–2026. EMNLP 2026 System Demonstrations."><link rel="icon" href="/favicon.svg"><style>*{box-sizing:border-box}:root{--bg:#fbfaf7;--fg:#18181a;--mut:#62605b;--line:#e2ded5;--card:#fff;--acc:#2b5f75;--btn:#18181a;--btnfg:#fff;color-scheme:light}
+html[data-theme=dark]{--bg:#121518;--fg:#e8e5df;--mut:#a3aab0;--line:#2a3238;--card:#181d22;--acc:#86bdd2;--btn:#e8e5df;--btnfg:#121518;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+.hero{min-height:100vh;max-width:1320px;margin:0 auto;padding:28px 32px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-areas:"head video" "explore video" "meta video";column-gap:44px;align-content:center}
+.head{grid-area:head}.video{grid-area:video;align-self:center}.explore{grid-area:explore}.meta{grid-area:meta}
+h1{font:700 clamp(36px,4vw,52px)/1 Georgia,'Times New Roman',serif;margin:0;letter-spacing:-.02em}
+.tag{color:var(--mut);margin:10px 0 0;font-size:17px;max-width:46ch}
+video{width:100%;aspect-ratio:16/9;display:block;border-radius:14px;background:#000;box-shadow:0 18px 50px rgba(0,0,0,.14)}
+.lbl{font:600 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin:22px 0 9px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.tile{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 13px;text-decoration:none;color:inherit}.tile:hover{border-color:var(--acc)}
+.tile b{display:block;color:var(--acc);font-size:16px}.tile small{display:block;color:var(--mut);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tile span{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chips a{border:1px solid var(--line);border-radius:7px;padding:5px 9px;font-size:13px;color:var(--fg);text-decoration:none;background:var(--card)}.chips a:hover{border-color:var(--acc);color:var(--acc)}
+.chips.sm a{font-size:12px;color:var(--mut)}
+.meta{margin-top:20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.btn{background:var(--btn);color:var(--btnfg);border-radius:99px;padding:7px 15px;font-weight:600;font-size:14px;text-decoration:none}
+.auth{flex-basis:100%;color:var(--mut);font-size:13px}.auth a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}.auth a:hover{color:var(--acc)}
+.below{max-width:1320px;margin:0 auto;padding:10px 32px 60px;border-top:1px solid var(--line)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;list-style:none;padding:0;margin:0}.steps b{display:block}.steps p{margin:3px 0 0;color:var(--mut);font-size:15px}
+pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;white-space:pre-wrap}
+.links a{color:var(--acc);margin-right:16px;font-weight:600;text-decoration:none;line-height:2}
+footer{color:var(--mut);font-size:13px;margin-top:30px}
+.theme{position:fixed;top:12px;right:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:99px;width:36px;height:36px;cursor:pointer}
+@media(max-width:900px){.hero{min-height:0;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "video" "explore" "meta";padding:22px 16px}.video{margin-top:18px}.below{padding:10px 16px 50px}.steps{grid-template-columns:1fr;gap:14px}}
+</style></head><body><button class="theme" aria-label="Toggle dark theme" onclick="var d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';localStorage.setItem('di-theme',d.dataset.theme)">☾</button><script>(function(){var t=localStorage.getItem('di-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t})()</script><section class="hero">
+<div class="head"><h1>Drift Inspector</h1><p class="tag">How research fields move, year by year. Every abstract becomes atomic contribution claims, mapped into topics you can trace down to single papers.</p></div>
+<div class="video"><video controls preload="metadata" playsinline poster="media/cover.jpg"><source src="media/drift-inspector-demo.mp4" type="video/mp4"></video></div>
+<div class="explore"><div class="lbl">Explore · 2018–2026</div><div class="grid"><a class="tile" href="https://drift.autumnfleet.com/i/all-conf/"><b>All conferences</b><small>NLP · ML · CV</small><span>117,888 papers · 570,179 claims</span></a><a class="tile" href="https://drift.autumnfleet.com/i/nlp-full/"><b>NLP</b><small>ACL Anthology · EMNLP 2026</small><span>32,659 papers · 149,776 claims</span></a><a class="tile" href="https://drift.autumnfleet.com/i/ml/"><b>Machine learning</b><small>NeurIPS · ICML · ICLR</small><span>52,074 papers · 254,592 claims</span></a><a class="tile" href="https://drift.autumnfleet.com/i/cv/"><b>Computer vision</b><small>CVPR · ICCV · ECCV</small><span>33,155 papers · 165,811 claims</span></a></div>
+<div class="chips"><a href="https://drift.autumnfleet.com/i/neurips/">NeurIPS</a><a href="https://drift.autumnfleet.com/i/icml/">ICML</a><a href="https://drift.autumnfleet.com/i/iclr/">ICLR</a><a href="https://drift.autumnfleet.com/i/cvpr/">CVPR</a><a href="https://drift.autumnfleet.com/i/iccv/">ICCV</a><a href="https://drift.autumnfleet.com/i/eccv/">ECCV</a><a href="https://drift.autumnfleet.com/i/emnlp2026/">EMNLP 2026</a></div><div class="chips sm"><a href="https://drift.autumnfleet.com/i/iclr-status/">ICLR: accepted vs rejected vs withdrawn</a><a href="https://hamyrappy.github.io/drift-inspector-emnlp/">EMNLP 2020–2025 · paper case study</a><a href="https://hamyrappy.github.io/drift-inspector-acl/">*ACL 2018–2026 · original demo</a></div></div>
+<div class="meta"><a class="btn" href="https://arxiv.org/abs/2609.39710">Paper</a><a class="btn" href="https://github.com/hamyrappy/drift-inspector">Code</a><a class="btn" href="#cite">Cite</a>
+<div class="auth"><a href="https://hamyrappy.com/">Vsevolod Karimov</a>, <a href="https://autumnfleet.com/en/">Stepan Ostarkov</a>, Anastasia Poroshina, Anatoly Frolov, Alexander Panchenko · EMNLP 2026 System Demonstrations</div></div>
+</section>
+<section class="below"><div class="lbl">How it works</div><ul class="steps"><li><b>Extract</b><p>An LLM rewrites every abstract as atomic contribution claims: what the paper adds, without background or boilerplate.</p></li><li><b>Map</b><p>Claims are embedded with SPECTER2 and clustered across all years into topics.</p></li><li><b>Trace</b><p>Every rising or falling topic opens down to its claims and the papers behind them.</p></li></ul>
+<div class="lbl">Data and links</div><div class="links"><a href="https://arxiv.org/abs/2609.39710">Paper</a><a href="https://github.com/hamyrappy/drift-inspector">Code</a><a href="https://huggingface.co/datasets/Hamyrappy/acl-anthology-atomic-claims">Dataset: ACL Anthology</a><a href="https://huggingface.co/datasets/Hamyrappy/emnlp-2020-2025-atomic-claims">Dataset: EMNLP 2020–2025</a><a href="https://drift.hamyrappy.com/">Classic viewer</a></div>
+<div class="lbl" id="cite">Citation</div><pre>@inproceedings{karimov2026driftinspector,
+  title     = {Drift Inspector: Exploring and Measuring Scientific Drift with Atomic Contribution Claims},
+  author    = {Karimov, Vsevolod and Ostarkov, Stepan and Poroshina, Anastasia and Frolov, Anatoly and Panchenko, Alexander},
+  booktitle = {Proceedings of EMNLP 2026: System Demonstrations},
+  year      = {2026}
+}</pre><footer>Code MIT · claim datasets CC BY 4.0</footer></section></body></html>
