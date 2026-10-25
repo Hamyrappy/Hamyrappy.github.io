@@ -9,7 +9,6 @@
 - `drift-inspector/` — лендинг статьи «Drift Inspector» (EMNLP 2026, System
   Demonstrations). **Этот адрес напечатан в статье, менять его нельзя.**
 - `drift-inspector-acl/`, `drift-inspector-emnlp/` — живые демо-инстансы.
-- `drift-inspector-airi-210f/` — инстанс без публичной ссылки, с `noindex`.
 - `metalcrow/` — лендинг проекта MetalCrow.
 
 Первые три папки **правятся не здесь**: их копирует сюда GitHub Actions
