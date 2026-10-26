@@ -27,14 +27,19 @@ footer{color:var(--mut);font-size:13px;margin-top:30px}
 <div class="video"><video controls preload="metadata" playsinline poster="media/cover.jpg"><source src="media/drift-inspector-demo.mp4" type="video/mp4"></video></div>
 <div class="explore"><div class="lbl">Explore · 2018–2026</div><div class="grid"><a class="tile" href="https://drift.autumnfleet.com/i/all-conf/"><b>All conferences</b><small>NLP · ML · CV</small><span>117,888 papers · 570,179 claims</span></a><a class="tile" href="https://drift.autumnfleet.com/i/nlp-full/"><b>NLP</b><small>ACL Anthology · EMNLP 2026</small><span>32,659 papers · 149,776 claims</span></a><a class="tile" href="https://drift.autumnfleet.com/i/ml/"><b>Machine learning</b><small>NeurIPS · ICML · ICLR</small><span>52,074 papers · 254,592 claims</span></a><a class="tile" href="https://drift.autumnfleet.com/i/cv/"><b>Computer vision</b><small>CVPR · ICCV · ECCV</small><span>33,155 papers · 165,811 claims</span></a></div>
 <div class="chips"><a href="https://drift.autumnfleet.com/i/neurips/">NeurIPS</a><a href="https://drift.autumnfleet.com/i/icml/">ICML</a><a href="https://drift.autumnfleet.com/i/iclr/">ICLR</a><a href="https://drift.autumnfleet.com/i/cvpr/">CVPR</a><a href="https://drift.autumnfleet.com/i/iccv/">ICCV</a><a href="https://drift.autumnfleet.com/i/eccv/">ECCV</a><a href="https://drift.autumnfleet.com/i/emnlp2026/">EMNLP 2026</a></div><div class="chips sm"><a href="https://drift.autumnfleet.com/i/iclr-status/">ICLR: accepted vs rejected vs withdrawn</a><a href="https://hamyrappy.github.io/drift-inspector-emnlp/">EMNLP 2020–2025 · paper case study</a><a href="https://hamyrappy.github.io/drift-inspector-acl/">*ACL 2018–2026 · original demo</a></div></div>
-<div class="meta"><a class="btn" href="https://arxiv.org/abs/2609.39710">Paper</a><a class="btn" href="https://github.com/hamyrappy/drift-inspector">Code</a><a class="btn" href="#cite">Cite</a>
+<div class="meta"><a class="btn" href="https://aclanthology.org/2026.emnlp-demos.13/">Paper</a><a class="btn" href="https://github.com/hamyrappy/drift-inspector">Code</a><a class="btn" href="#cite">Cite</a>
 <div class="auth"><a href="https://hamyrappy.com/">Vsevolod Karimov</a>, <a href="https://autumnfleet.com/en/">Stepan Ostarkov</a>, Anastasia Poroshina, Anatoly Frolov, Alexander Panchenko · EMNLP 2026 System Demonstrations</div></div>
 </section>
 <section class="below"><div class="lbl">How it works</div><ul class="steps"><li><b>Extract</b><p>An LLM rewrites every abstract as atomic contribution claims: what the paper adds, without background or boilerplate.</p></li><li><b>Map</b><p>Claims are embedded with SPECTER2 and clustered across all years into topics.</p></li><li><b>Trace</b><p>Every rising or falling topic opens down to its claims and the papers behind them.</p></li></ul>
-<div class="lbl">Data and links</div><div class="links"><a href="https://arxiv.org/abs/2609.39710">Paper</a><a href="https://github.com/hamyrappy/drift-inspector">Code</a><a href="https://huggingface.co/datasets/Hamyrappy/acl-anthology-atomic-claims">Dataset: ACL Anthology</a><a href="https://huggingface.co/datasets/Hamyrappy/emnlp-2020-2025-atomic-claims">Dataset: EMNLP 2020–2025</a><a href="https://drift.hamyrappy.com/">Classic viewer</a></div>
-<div class="lbl" id="cite">Citation</div><pre>@inproceedings{karimov2026driftinspector,
+<div class="lbl">Data and links</div><div class="links"><a href="https://aclanthology.org/2026.emnlp-demos.13/">Paper</a><a href="https://github.com/hamyrappy/drift-inspector">Code</a><a href="https://huggingface.co/datasets/Hamyrappy/acl-anthology-atomic-claims">Dataset: ACL Anthology</a><a href="https://huggingface.co/datasets/Hamyrappy/emnlp-2020-2025-atomic-claims">Dataset: EMNLP 2020–2025</a><a href="https://arxiv.org/abs/2609.39710">arXiv</a><a href="https://drift.hamyrappy.com/">Classic viewer</a></div>
+<div class="lbl" id="cite">Citation</div><pre>@inproceedings{karimov-etal-2026-drift,
   title     = {Drift Inspector: Exploring and Measuring Scientific Drift with Atomic Contribution Claims},
   author    = {Karimov, Vsevolod and Ostarkov, Stepan and Poroshina, Anastasia and Frolov, Anatoly and Panchenko, Alexander},
-  booktitle = {Proceedings of EMNLP 2026: System Demonstrations},
-  year      = {2026}
+  booktitle = {Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing: System Demonstrations},
+  month     = oct,
+  year      = {2026},
+  address   = {Budapest, Hungary},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/2026.emnlp-demos.13/},
+  pages     = {138--148}
 }</pre><footer>Code MIT · claim datasets CC BY 4.0</footer></section></body></html>
